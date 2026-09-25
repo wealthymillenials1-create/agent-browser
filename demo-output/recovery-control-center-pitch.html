@@ -2553,3 +2553,46 @@ document.addEventListener("DOMContentLoaded",()=>{
   white-space:nowrap !important;
 }
 </style>
+
+<!-- COMPACT FINDINGS VIEW -->
+<style>
+/* Compact horizontal A1-A5 is the primary findings presentation */
+#findings{
+  display:none !important;
+}
+
+#liveDiscoveryTicker{
+  display:block;
+  margin:16px 0 22px;
+  padding:14px 18px;
+}
+
+.discoveryFinding{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  min-height:44px;
+  padding:9px 4px !important;
+  gap:24px;
+  cursor:pointer;
+}
+
+.discoveryFinding strong{
+  font-size:13px;
+  font-weight:650;
+  color:#dfffee !important;
+}
+
+.discoveryFinding span{
+  margin-left:auto;
+  font-size:15px;
+  font-weight:800;
+  color:#70e3a2 !important;
+  white-space:nowrap;
+}
+
+#liveDiscoveryTotal{
+  color:#70e3a2;
+  font-weight:750;
+}
+</style>
