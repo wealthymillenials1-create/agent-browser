@@ -928,6 +928,9 @@ const investigationMessages=[
 ];
 
 async function runInvestigation(){
+  const scanOverlay=document.getElementById("scanOverlay");
+  if(scanOverlay) scanOverlay.classList.add("active");
+
   window.__LIVE_AUDIT_HAS_RUN__=true;
   window.__LIVE_AUDIT_HAS_RUN__=true;
   animateEconomicReconstruction();
