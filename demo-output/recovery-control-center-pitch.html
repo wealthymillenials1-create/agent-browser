@@ -964,8 +964,12 @@ async function runInvestigation(){
    }
 
    REAL_AUDIT=result;
-  updateRealAuditScope(REAL_AUDIT);
-  revealLiveFindings(REAL_AUDIT.findings);
+   updateRealAuditScope(REAL_AUDIT);
+
+   // Open the existing LIVE SYSTEM ACTIVITY popup.
+   playRealEvidenceStream(REAL_AUDIT);
+
+   revealLiveFindings(REAL_AUDIT.findings);
 
    // Update primary economic outcome.
    const moneyNodes=[
