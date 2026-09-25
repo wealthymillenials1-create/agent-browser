@@ -560,6 +560,54 @@ function renderVerifiedFindingsImmediately(audit){
     moneyDiscovery(audit.potential_recovery)+
     " identified";
 
+  // Keep the large finding cards synchronized with verified ERP truth.
+  const root=document.getElementById("findings");
+
+  if(root){
+    root.innerHTML="";
+
+    audit.findings.forEach(f=>{
+      const staticFinding=(DATA.findings||[]).find(x=>
+        x.id===f.id ||
+        (
+          x.supplier===f.supplier &&
+          Number(x.recovery)===Number(f.recovery)
+        )
+      );
+
+      if(!staticFinding) return;
+
+      const c=document.createElement("div");
+      c.className="card";
+      c.onclick=()=>openFinding(staticFinding);
+
+      c.innerHTML=`
+        <div>
+          <span class="id">${staticFinding.id}</span>
+          <span class="high">${staticFinding.confidence} CONFIDENCE</span>
+        </div>
+        <h2>${staticFinding.title}</h2>
+        <div style="color:#8499b8">${staticFinding.supplier}</div>
+        <div class="amount">${moneyDiscovery(f.recovery)}</div>
+        <div class="explain">${staticFinding.explanation}</div>
+        <div class="evidence">
+          <b>EVIDENCE CHAIN</b><br>
+          ${(staticFinding.evidence||[]).map(x=>"↳ "+x).join("<br>")}
+        </div>
+        <div class="action">
+          <b>RECOMMENDED ACTION</b><br>
+          ${staticFinding.action}
+          <br>
+          <button style="margin-top:12px"
+            onclick="event.stopPropagation();openRecoveryLifecycleForFinding('${staticFinding.id}')">
+            PREPARE RECOVERY
+          </button>
+        </div>`;
+
+      root.appendChild(c);
+    });
+  }
+
   updateRealAuditScope(audit);
 }
 
