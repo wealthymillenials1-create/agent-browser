@@ -1,0 +1,8 @@
+{
+  "state": "READY",
+  "source": "ERPNext",
+  "mode": "READ_ONLY",
+  "engine": "DETERMINISTIC_RECONCILIATION",
+  "ground_truth_used": false,
+  "external_actions": 0
+}

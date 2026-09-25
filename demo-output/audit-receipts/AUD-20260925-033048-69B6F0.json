@@ -1,0 +1,95 @@
+{
+  "audit_status": "COMPLETE",
+  "discovery": {
+    "approved_credit_documents_found": 1,
+    "rebate_agreements_found": 1,
+    "supplier_documents_examined": 2,
+    "suppliers_found": 3
+  },
+  "engine_version": "V2_DISCOVERY_DRIVEN",
+  "exception_count": 5,
+  "external_actions": 0,
+  "findings": [
+    {
+      "actual": 24480,
+      "agreement_file": "Summit-Q1-2026-Rebate-Agreement.txt",
+      "contractual_rate": 0.06,
+      "contractual_tier_source": "$500,000.00 and above Rebate Rate: 6%",
+      "eligible_spend": 612000,
+      "evidence": [
+        "Summit-Q1-2026-Rebate-Agreement.txt",
+        "ACC-PINV-2026-00002",
+        "ACC-PINV-2026-00005",
+        "ACC-PINV-2026-00012",
+        "ACC-PINV-2026-00013",
+        "ACC-PINV-2026-00014",
+        "ACC-PINV-2026-00015",
+        "ACC-JV-2026-00001"
+      ],
+      "expected": 36720,
+      "recovery": 12240,
+      "supplier": "Summit Traders Ltd.",
+      "type": "REBATE_SHORTFALL"
+    },
+    {
+      "actual": 43668,
+      "evidence": [
+        "PUR-ORD-2026-00008",
+        "ACC-PINV-2026-00018"
+      ],
+      "expected": 40293,
+      "recovery": 3375,
+      "supplier": "MA Inc.",
+      "type": "PO_INVOICE_VARIANCE"
+    },
+    {
+      "evidence": [
+        "ACC-PINV-2026-00019",
+        "ACC-PINV-2026-00020"
+      ],
+      "reason": "Same supplier, item, quantity, rate and total within seven days",
+      "recovery": 9750,
+      "supplier": "Zuckerman Security Ltd.",
+      "type": "POTENTIAL_DUPLICATE_INVOICE"
+    },
+    {
+      "actual": 0,
+      "approval_discovered_from_document": true,
+      "evidence": [
+        "Summit-Approved-Credit-8400.txt"
+      ],
+      "expected": 8400,
+      "recovery": 8400,
+      "supplier": "Summit Traders Ltd.",
+      "type": "APPROVED_CREDIT_NOT_POSTED"
+    },
+    {
+      "evidence": [
+        "ACC-JV-2026-00002",
+        "ACC-PINV-2026-00006",
+        "ACC-PAY-2026-00003"
+      ],
+      "reason": "Supplier credit exists while the related invoice was separately settled in full",
+      "recovery": 4970,
+      "supplier": "MA Inc.",
+      "type": "UNAPPLIED_SUPPLIER_CREDIT"
+    }
+  ],
+  "ground_truth_used": false,
+  "mode": "READ_ONLY",
+  "potential_recovery": 38735,
+  "scenario_specific_supplier_filter": false,
+  "source": "ERPNext",
+  "run_id": "AUD-20260925-033048-69B6F0",
+  "started_at": "2026-09-25T03:30:48.870222+00:00",
+  "completed_at": "2026-09-25T03:30:50.760242+00:00",
+  "duration_seconds": 1.89,
+  "execution": {
+    "source": "ERPNext",
+    "mode": "READ_ONLY",
+    "fresh_run": true,
+    "engine": "V3_LIVE_FROM_VERIFIED_V2",
+    "ground_truth_used": false,
+    "external_actions": 0
+  }
+}

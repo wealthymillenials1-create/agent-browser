@@ -1,0 +1,2318 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recovery Control Center</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#07101f;color:#eef4ff;font-family:Inter,Arial,sans-serif}
+.wrap{max-width:1280px;margin:auto;padding:34px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
+.brand{font-size:18px;font-weight:800;letter-spacing:.08em}
+.status{padding:9px 14px;border:1px solid #315b4b;border-radius:30px;color:#9ff0c5}
+.hero{background:linear-gradient(135deg,#101d35,#0b1427);border:1px solid #223555;border-radius:22px;padding:36px;margin-bottom:24px}
+.eyebrow{color:#88a6d8;font-size:13px;letter-spacing:.12em}
+.money{font-size:72px;font-weight:850;letter-spacing:-.055em;margin:8px 0}
+.sub{font-size:19px;color:#a9bad4}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:28px}
+.metric{background:#0a1426;border:1px solid #1c3150;padding:18px;border-radius:14px}
+.metric b{display:block;font-size:25px;margin-bottom:5px}
+.metric span{color:#8297b7;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.card{background:#0d182b;border:1px solid #213552;border-radius:17px;padding:23px;position:relative;cursor:pointer;transition:.18s}.card:hover{transform:translateY(-2px);border-color:#4d719f}
+.card h2{font-size:18px;margin:7px 0}
+.amount{font-size:31px;font-weight:800;margin:15px 0}
+.high{font-size:11px;border:1px solid #285c48;color:#8be4b6;border-radius:20px;padding:5px 8px}
+.id{color:#7188ab;font-size:12px}
+.explain{color:#adbad0;line-height:1.5;min-height:66px}
+.evidence{background:#081120;border-radius:10px;padding:12px;margin-top:14px;font-size:12px;color:#879bb9;line-height:1.7}
+.action{margin-top:15px;border-top:1px solid #1b2c45;padding-top:14px;color:#cdd9eb;font-size:13px}
+.footer{margin-top:25px;padding:20px;border:1px solid #263954;border-radius:14px;color:#8296b4;display:flex;justify-content:space-between}
+button{background:#eef4ff;color:#07101f;border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer}
+@media(max-width:800px){.metrics,.grid{grid-template-columns:1fr}.money{font-size:48px}}
+
+.drawerOverlay{position:fixed;inset:0;background:#0008;display:none;z-index:90}
+.drawer{position:fixed;right:-650px;top:0;width:min(620px,94vw);height:100vh;background:#091426;border-left:1px solid #29405f;z-index:100;padding:28px;overflow:auto;transition:right .25s}
+.drawer.open{right:0}.drawerOverlay.open{display:block}
+.close{float:right;background:#17243a;color:#fff;font-size:18px}
+.sourceBox{background:#07101e;border:1px solid #203651;border-radius:12px;padding:15px;margin:12px 0}
+.calc{font-family:monospace;white-space:pre-line;background:#050c17;padding:18px;border-radius:12px;line-height:1.8}
+.sourceTag{color:#82a1ca;font-size:12px;letter-spacing:.08em}
+.erpBtn{display:inline-block;margin-top:10px;background:#eef4ff;color:#07101f;text-decoration:none;border-radius:9px;padding:10px 14px;font-weight:700}
+
+.investigateBtn{
+ background:#eef4ff;color:#07101f;border:0;border-radius:10px;
+ padding:13px 18px;font-weight:800;cursor:pointer;margin-top:20px
+}
+.scanOverlay{
+ position:fixed;inset:0;background:#050b16;z-index:200;
+ display:none;overflow-y:auto;overflow-x:hidden;
+ align-items:flex-start;justify-content:center;
+ padding:30px 20px 80px;
+ -webkit-overflow-scrolling:touch
+}
+.scanOverlay.active{display:flex}
+.scanPanel{
+ width:min(900px,95vw);
+ margin:auto;
+ min-height:max-content;
+ padding-bottom:60px
+}
+.scanTitle{font-size:14px;letter-spacing:.15em;color:#7793bc;margin-bottom:16px}
+.scanStep{
+ opacity:.28;border-left:2px solid #263b59;padding:12px 18px;
+ margin:7px 0;font-size:17px;transition:.25s
+}
+.scanStep.active{opacity:1;border-color:#eef4ff}
+.scanStep.done{opacity:.75}
+.scanLog{
+ margin-top:22px;background:#030914;border:1px solid #1d304c;
+ border-radius:12px;padding:18px;font-family:monospace;
+ color:#8fa7c8;min-height:90px
+}
+.scanMoney{font-size:64px;font-weight:850;display:none;margin:20px 0}
+.scanComplete{display:none}
+
+.liveWorkspace{
+ display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px
+}
+.livePane{
+ background:#07101e;border:1px solid #203651;border-radius:14px;
+ padding:18px;min-height:230px
+}
+.livePane h3{margin-top:0;font-size:13px;color:#839bc0;letter-spacing:.1em}
+.event{
+ padding:10px 0;border-bottom:1px solid #172a43;
+ font-family:monospace;font-size:13px;line-height:1.5
+}
+.event b{color:#eef4ff}
+.found{
+ border:1px solid #315b4b;background:#0b1a20;
+ border-radius:10px;padding:12px;margin:9px 0
+}
+.runningDot{display:inline-block;margin-right:8px}
+@media(max-width:800px){.liveWorkspace{grid-template-columns:1fr}}
+
+.recoveryOverlay{
+ position:fixed;inset:0;background:#040a14ee;z-index:300;
+ display:none;overflow-y:auto;padding:30px 20px
+}
+.recoveryOverlay.open{display:block}
+.recoveryPanel{
+ max-width:1050px;margin:auto;background:#091426;
+ border:1px solid #29405f;border-radius:18px;padding:28px
+}
+.recoveryHeader{
+ display:flex;justify-content:space-between;gap:20px;align-items:flex-start
+}
+.recoveryAmount{font-size:48px;font-weight:850;margin:8px 0}
+.ready{
+ display:inline-block;border:1px solid #315b4b;color:#9fe4bf;
+ border-radius:20px;padding:6px 10px;font-size:11px
+}
+.packageGrid{
+ display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px
+}
+.packageBox{
+ background:#07101e;border:1px solid #203651;border-radius:13px;padding:17px
+}
+.packageBox h3{margin-top:0;color:#8ca4c8;font-size:12px;letter-spacing:.1em}
+.check{padding:7px 0;color:#c7d5e8}
+.approvalGate{
+ margin-top:20px;padding:20px;border:1px solid #6b5930;
+ background:#191508;border-radius:13px
+}
+.draft{
+ white-space:pre-wrap;line-height:1.55;color:#b8c7dc;font-size:13px
+}
+@media(max-width:800px){.packageGrid{grid-template-columns:1fr}}
+
+.problemStrip{
+ display:grid;grid-template-columns:1fr auto 1fr;gap:18px;
+ align-items:center;margin:0 0 24px
+}
+.problemSide{
+ background:#0b1628;border:1px solid #213552;border-radius:16px;padding:20px
+}
+.problemSide h3{margin:0 0 10px;font-size:13px;letter-spacing:.1em;color:#839bc0}
+.problemSide strong{font-size:21px}
+.problemArrow{font-size:27px;color:#7086a7}
+.lifecycle{
+ display:flex;gap:8px;flex-wrap:wrap;margin-top:15px
+}
+.stage{
+ padding:7px 10px;border:1px solid #29405f;border-radius:20px;
+ font-size:11px;color:#8fa6c7
+}
+.stage.on{border-color:#315b4b;color:#9fe4bf}
+.roiPanel{
+ margin-top:24px;background:linear-gradient(135deg,#101d35,#0a1629);
+ border:1px solid #29405f;border-radius:18px;padding:25px
+}
+.roiGrid{
+ display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:17px
+}
+.roiBox{
+ background:#07101e;border:1px solid #203651;border-radius:12px;padding:16px
+}
+.roiBox b{font-size:25px;display:block}
+.roiBox span{font-size:11px;color:#8097b8}
+.pitchEnd{
+ margin-top:24px;padding:30px;text-align:center;background:#050d19;
+ border:1px solid #29405f;border-radius:18px
+}
+.pitchEnd h2{font-size:30px;margin:8px 0}
+@media(max-width:800px){
+ .problemStrip{grid-template-columns:1fr}
+ .problemArrow{transform:rotate(90deg);text-align:center}
+ .roiGrid{grid-template-columns:1fr}
+}
+</style>
+
+
+
+
+
+
+<style>
+#realEvidenceStream .evidenceLink{
+  color:#9fdcff;
+  text-decoration:none;
+  border-bottom:1px dotted rgba(159,220,255,.6);
+}
+#realEvidenceStream .evidenceLink:hover{
+  color:#ffffff;
+  border-bottom-color:#ffffff;
+}
+#realEvidenceStream .evidenceDoc{
+  color:#a8b7af;
+}
+#realEvidenceStream .calculationProof{
+  display:inline-block;
+  margin-top:5px;
+  color:#ffffff;
+  font-weight:500;
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+ <div id="auditProof" style="
+display:none;margin-bottom:18px;padding:12px 16px;
+border:1px solid #315b4b;background:#091a1b;border-radius:12px;
+color:#9fe4bf;font-size:13px">
+LIVE AUDIT RESULT · ERPNext · READ ONLY · GROUND TRUTH NOT USED
+</div>
+<div class="top">
+  <div class="brand">RECOVERY CONTROL CENTER</div>
+  <div class="status">● AUDIT COMPLETE</div>
+ </div>
+
+ 
+<div class="problemStrip">
+ <div class="problemSide">
+  <h3>BEFORE</h3>
+  <strong>Money is buried across disconnected records</strong>
+  <p style="color:#899fbe">
+   Agreements, POs, invoices, payments and credits are reviewed separately.
+   Exceptions can survive because nobody continuously reconstructs the full economic event.
+  </p>
+ </div>
+
+ <div class="problemArrow">→</div>
+
+ <div class="problemSide">
+  <h3>AFTER</h3>
+  <strong>Every exception becomes a provable recovery case</strong>
+  <p style="color:#899fbe">
+   The system reconstructs expected economics, compares them with actual transactions,
+   proves the variance and prepares the recovery action.
+  </p>
+ </div>
+</div>
+<div class="hero">
+  <div class="eyebrow">GIVENS VALE (DEMO) · AUTONOMOUS CASH LEAKAGE AUDIT</div>
+  <div class="money">$38,735</div>
+  <div class="sub">potential recoverable cash identified from ERP records and supporting evidence</div>
+
+  <button class="investigateBtn" onclick="runInvestigation()">▶ RUN AUTONOMOUS INVESTIGATION</button>
+<div class="metrics">
+   <div class="metric"><b>5</b><span>HIGH-CONFIDENCE EXCEPTIONS</span></div>
+   <div class="metric"><b>$38.7K</b><span>POTENTIAL RECOVERY</span></div>
+   <div class="metric"><b>100%</b><span>FINDINGS WITH EVIDENCE</span></div>
+   <div class="metric"><b>0</b><span>EXTERNAL ACTIONS WITHOUT APPROVAL</span></div>
+  </div>
+ </div>
+
+ 
+<style>
+#economicReconstruction{
+  margin:22px 0;
+  padding:20px;
+  border:1px solid rgba(120,255,190,.22);
+  border-radius:14px;
+  background:rgba(5,18,13,.72);
+}
+.reconTitle{
+  font-size:12px;
+  letter-spacing:1.5px;
+  color:#76d9a4;
+  margin-bottom:14px;
+}
+.reconFlow{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+}
+.reconNode{
+  padding:13px 10px;
+  border:1px solid #263d32;
+  border-radius:10px;
+  text-align:center;
+  font-size:12px;
+  background:#07110c;
+}
+.reconNode b{
+  display:block;
+  font-size:15px;
+  margin-bottom:4px;
+}
+.reconArrow{
+  color:#68d99c;
+  text-align:center;
+  margin-top:10px;
+  font-size:12px;
+}
+@media(max-width:800px){
+  .reconFlow{grid-template-columns:1fr;}
+}
+</style>
+
+
+<style>
+.proofStrip{
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:10px;
+ margin:14px 0 22px;
+}
+.proofCell{
+ background:#07110c;
+ border:1px solid #243b30;
+ border-radius:10px;
+ padding:12px;
+}
+.proofCell span{
+ display:block;
+ font-size:10px;
+ letter-spacing:1px;
+ color:#718b7c;
+}
+.proofCell b{
+ display:block;
+ margin-top:5px;
+ font-size:13px;
+ color:#dfffee;
+}
+@media(max-width:800px){
+ .proofStrip{grid-template-columns:1fr 1fr;}
+}
+</style>
+
+
+<style>
+.auditReceipt{
+ margin:18px 0;
+ padding:15px 17px;
+ border:1px solid rgba(100,220,160,.25);
+ border-radius:11px;
+ background:#06100b;
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:12px;
+}
+.auditReceipt small{
+ display:block;
+ color:#70877a;
+ font-size:9px;
+ letter-spacing:1px;
+}
+.auditReceipt strong{
+ display:block;
+ margin-top:4px;
+ font-size:12px;
+ color:#dffff0;
+}
+@media(max-width:800px){
+ .auditReceipt{grid-template-columns:1fr 1fr;}
+}
+</style>
+
+<div class="auditReceipt">
+ <div>
+  <small>EXECUTION</small>
+  <strong>FRESH ERP AUDIT</strong>
+ </div>
+ <div>
+  <small>ACCESS MODE</small>
+  <strong>AUDIT READ ONLY</strong>
+ </div>
+ <div>
+  <small>DECISION CONTROL</small>
+  <strong>HUMAN GATED</strong>
+ </div>
+ <div>
+  <small>RECOVERY PROOF</small>
+  <strong>LEDGER VERIFIED</strong>
+ </div>
+</div>
+
+<div class="proofStrip">
+ <div class="proofCell">
+  <span>SYSTEM OF RECORD</span>
+  <b>ERPNext · LIVE</b>
+ </div>
+ <div class="proofCell">
+  <span>ECONOMIC LOGIC</span>
+  <b>Deterministic</b>
+ </div>
+ <div class="proofCell">
+  <span>GROUND TRUTH</span>
+  <b>Not Used</b>
+ </div>
+ <div class="proofCell">
+  <span>CONTROL</span>
+  <b>Human Approval</b>
+ </div>
+</div>
+
+
+<div id="executiveProof" style="
+ margin:18px 0 22px;
+ padding:18px;
+ border:1px solid rgba(104,217,156,.28);
+ border-radius:12px;
+ background:linear-gradient(135deg,#07120d,#091711);
+">
+ <div style="
+  font-size:10px;
+  letter-spacing:1.5px;
+  color:#72d9a1;
+  margin-bottom:9px;
+ ">
+  WHAT THE SYSTEM JUST PROVED
+ </div>
+
+ <div style="
+  font-size:18px;
+  line-height:1.45;
+  color:#effff5;
+ ">
+  It reconstructed what should have happened,
+  compared it with what actually hit the ledger,
+  and isolated evidence-backed recovery opportunities.
+ </div>
+
+ <div style="
+  margin-top:10px;
+  font-size:12px;
+  color:#8fa99a;
+ ">
+  Deterministic money logic · source-level evidence ·
+  AI-assisted exception investigation · human-gated recovery
+ </div>
+</div>
+
+
+<style>
+#liveDiscoveryTicker{
+ display:none;
+ margin:16px 0;
+ padding:16px;
+ border:1px solid rgba(105,225,160,.24);
+ border-radius:12px;
+ background:#06100b;
+}
+
+.discoveryFinding{
+ display:flex;
+ justify-content:space-between;
+ gap:20px;
+ padding:10px 0;
+ border-bottom:1px solid rgba(255,255,255,.06);
+ animation:discoverIn .35s ease;
+}
+
+.discoveryFinding:last-child{
+ border-bottom:0;
+}
+
+.discoveryFinding strong{
+ color:#effff5;
+}
+
+.discoveryFinding span{
+ color:#70e3a2;
+ font-weight:700;
+}
+
+@keyframes discoverIn{
+ from{
+   opacity:0;
+   transform:translateY(8px);
+ }
+ to{
+   opacity:1;
+   transform:translateY(0);
+ }
+}
+</style>
+
+<div id="liveDiscoveryTicker">
+ <div style="
+   font-size:10px;
+   letter-spacing:1.4px;
+   color:#70d99d;
+   margin-bottom:8px;
+ ">
+   EXCEPTIONS DISCOVERED DURING INVESTIGATION
+ </div>
+
+ <div id="liveDiscoveryRows"></div>
+
+ <div id="liveDiscoveryTotal" style="
+   margin-top:12px;
+   padding-top:12px;
+   border-top:1px solid rgba(255,255,255,.09);
+   font-size:14px;
+ ">
+   0 exceptions · $0 identified
+ </div>
+</div>
+
+<script>
+function moneyDiscovery(v){
+ return "$"+Number(v||0).toLocaleString(
+   "en-US",
+   {maximumFractionDigits:0}
+ );
+}
+
+async function revealLiveFindings(findings){
+ const box=document.getElementById("liveDiscoveryTicker");
+ const rows=document.getElementById("liveDiscoveryRows");
+ const total=document.getElementById("liveDiscoveryTotal");
+
+ if(!box || !rows || !total || !findings) return;
+
+ box.style.display="block";
+ rows.innerHTML="";
+ total.textContent="0 exceptions · $0 identified";
+
+ let sum=0;
+
+ for(let i=0;i<findings.length;i++){
+   const f=findings[i];
+   sum+=Number(f.recovery||0);
+
+   const row=document.createElement("div");
+   row.className="discoveryFinding";
+   row.style.cursor="pointer";
+   row.title="Open source evidence";
+   row.onclick=()=>{
+     const staticFinding=DATA.findings.find(x=>
+       x.id===f.id ||
+       (x.supplier===f.supplier && Number(x.recovery)===Number(f.recovery))
+     );
+     if(staticFinding) openFinding(staticFinding);
+   };
+
+   row.innerHTML=
+     "<strong>"+
+     ((DATA.findings.find(x=>
+       x.supplier===f.supplier &&
+       Number(x.recovery)===Number(f.recovery)
+     )||{}).id||f.id||"EXCEPTION")+
+     " · "+
+     (f.supplier||"Exception")+
+     " · "+
+     String(f.type||f.title||"").replaceAll("_"," ")+
+     "</strong>"+
+     "<span>"+
+     moneyDiscovery(f.recovery)+
+     "</span>";
+
+   rows.appendChild(row);
+
+   total.textContent=
+     (i+1)+
+     " exception"+
+     (i===0?"":"s")+
+     " · "+
+     moneyDiscovery(sum)+
+     " identified";
+
+   await new Promise(r=>setTimeout(r,260));
+ }
+}
+</script>
+
+
+<style>
+#realAuditScope{
+ display:grid;
+ grid-template-columns:repeat(5,1fr);
+ gap:9px;
+ margin:16px 0;
+}
+.scopeMetric{
+ padding:12px;
+ background:#06100b;
+ border:1px solid rgba(110,220,160,.18);
+ border-radius:10px;
+}
+.scopeMetric b{
+ display:block;
+ font-size:20px;
+ color:#effff5;
+}
+.scopeMetric span{
+ font-size:9px;
+ letter-spacing:1px;
+ color:#789083;
+}
+@media(max-width:800px){
+ #realAuditScope{grid-template-columns:1fr 1fr;}
+}
+</style>
+
+<div id="realAuditScope">
+ <div class="scopeMetric">
+  <b id="scopeSuppliers">—</b>
+  <span>SUPPLIERS DISCOVERED</span>
+ </div>
+ <div class="scopeMetric">
+  <b id="scopeDocs">—</b>
+  <span>SUPPLIER DOCS EXAMINED</span>
+ </div>
+ <div class="scopeMetric">
+  <b id="scopeAgreements">—</b>
+  <span>REBATE AGREEMENTS</span>
+ </div>
+ <div class="scopeMetric">
+  <b id="scopeApprovals">—</b>
+  <span>CREDIT APPROVALS</span>
+ </div>
+ <div class="scopeMetric">
+  <b id="scopeExceptions">—</b>
+  <span>EXCEPTIONS PROVEN</span>
+ </div>
+</div>
+
+<script>
+function updateRealAuditScope(audit){
+ if(!audit) return;
+
+ const d=audit.discovery||{};
+
+ const values={
+   scopeSuppliers:
+     d.suppliers_found ?? "—",
+
+   scopeDocs:
+     d.supplier_documents_examined ?? "—",
+
+   scopeAgreements:
+     d.rebate_agreements_found ?? "—",
+
+   scopeApprovals:
+     d.approved_credit_documents_found ?? "—",
+
+   scopeExceptions:
+     audit.exception_count ??
+     (audit.findings ? audit.findings.length : "—")
+ };
+
+ for(const [id,value] of Object.entries(values)){
+   const el=document.getElementById(id);
+   if(el) el.textContent=value;
+ }
+}
+</script>
+
+<div id="economicReconstruction">
+ <div class="reconTitle">LIVE ECONOMIC RECONSTRUCTION</div>
+ <div class="reconFlow">
+   <div class="reconNode" data-recon="transactions">
+     <b>ERP TRANSACTIONS</b>
+     invoices · POs · payments
+   </div>
+   <div class="reconNode" data-recon="terms">
+     <b>COMMERCIAL TERMS</b>
+     agreements · approvals
+   </div>
+   <div class="reconNode" data-recon="expected">
+     <b>EXPECTED ECONOMICS</b>
+     deterministic calculation
+   </div>
+   <div class="reconNode" data-recon="ledger">
+     <b>ACTUAL LEDGER</b>
+     credits · settlements
+   </div>
+   <div class="reconNode" data-recon="exceptions">
+     <b>EXCEPTIONS</b>
+     evidence-backed dollars
+   </div>
+ </div>
+ <div class="reconArrow">
+   SOURCE RECORDS → RECONSTRUCT → RECONCILE → PROVE → RECOVER
+ </div>
+</div>
+
+<div class="grid" id="findings"></div>
+
+ <div class="recoveryOverlay" id="recoveryOverlay">
+ <div class="recoveryPanel">
+  <div class="recoveryHeader">
+   <div>
+    <div class="scanTitle">RECOVERY PACKAGE · GENERATED FROM AUDIT EVIDENCE</div>
+    <h1 id="recoveryTitle">Recovery Case</h1>
+    <div id="recoverySupplier" style="color:#8da4c5"></div>
+   </div>
+   <button onclick="closeRecovery()">✕</button>
+  </div>
+
+  <div class="recoveryAmount" id="recoveryAmount">$0</div>
+  <span class="ready">READY FOR HUMAN REVIEW</span>
+
+  <div class="packageGrid">
+   <div class="packageBox">
+    <h3>CASE EVIDENCE</h3>
+    <div id="recoveryEvidence"></div>
+   </div>
+
+   <div class="packageBox">
+    <h3>RECOVERY CHECKLIST</h3>
+    <div class="check">✓ Exception quantified</div>
+    <div class="check">✓ Source evidence attached</div>
+    <div class="check">✓ Calculation prepared</div>
+    <div class="check">✓ Supplier communication drafted</div>
+    <div class="check">✓ Human approval gate active</div>
+   </div>
+  </div>
+
+  <div class="packageBox" style="margin-top:16px">
+   <h3>DRAFT SUPPLIER COMMUNICATION</h3>
+   <div class="draft" id="recoveryDraft"></div>
+  </div>
+
+  <div class="approvalGate">
+   <b>HUMAN APPROVAL REQUIRED</b><br><br>
+   This recovery package is prepared but has not been sent.
+   No supplier-facing action will occur without explicit approval.
+   <br><br>
+   <button onclick="simulateApproval()">REVIEW FOR APPROVAL</button>
+   <span id="approvalStatus" style="margin-left:12px;color:#bca873">
+    NOT APPROVED · 0 EXTERNAL ACTIONS
+   </span>
+  </div>
+ </div>
+</div>
+
+<div class="scanOverlay" id="scanOverlay">
+ <div class="scanPanel">
+  <div class="scanTitle">AUTONOMOUS RECOVERY ENGINE · READ ONLY</div>
+  <h1 id="scanHeading">Connecting to ERPNext...</h1>
+
+  <div class="liveWorkspace">
+   <div class="livePane">
+    <h3>LIVE SYSTEM ACTIVITY</h3>
+    <div id="activity"></div>
+   </div>
+
+   <div class="livePane">
+    <h3>EXCEPTIONS DISCOVERED</h3>
+    <div id="discoveries">
+     <div style="color:#607796">Waiting for evidence...</div>
+    </div>
+   </div>
+  </div>
+
+  <div class="scanComplete" id="scanComplete">
+   <div class="scanMoney">$38,735</div>
+   <h2>5 high-confidence exceptions proven</h2>
+   <p style="color:#93a8c6">
+    Source evidence collected · deterministic reconciliation complete ·
+    no external action taken
+   </p>
+   <button onclick="finishInvestigation()">OPEN RECOVERY CONTROL CENTER</button>
+  </div>
+ </div>
+</div>
+
+<div class="drawerOverlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+<button class="close" onclick="closeDrawer()">✕</button>
+<div id="drawerContent"></div>
+</div>
+
+<div class="roiPanel">
+ <div class="eyebrow">ECONOMIC OUTCOME</div>
+ <h2>From transaction noise to recoverable cash</h2>
+
+ <div class="lifecycle">
+  <div class="stage on">IDENTIFIED</div>
+  <div class="stage on">PROVEN</div>
+  <div class="stage on">PACKAGE READY</div>
+  <div class="stage">APPROVED</div>
+  <div class="stage">RECOVERED</div>
+  <div class="stage">LEDGER VERIFIED</div>
+ </div>
+
+ <div class="roiGrid">
+  <div class="roiBox">
+   <b>$38,735</b>
+   <span>POTENTIAL RECOVERY IDENTIFIED</span>
+  </div>
+  <div class="roiBox">
+   <b>5</b>
+   <span>HIGH-CONFIDENCE EXCEPTIONS</span>
+  </div>
+  <div class="roiBox">
+   <b>0</b>
+   <span>UNAPPROVED EXTERNAL ACTIONS</span>
+  </div>
+ </div>
+</div>
+
+<div class="pitchEnd">
+ <div class="eyebrow">THE OPERATING MODEL</div>
+ <h2>Find it. Prove it. Recover it. Verify it.</h2>
+ <p style="color:#8da3c2;max-width:720px;margin:12px auto">
+  Read-only access to operational and financial systems becomes a continuous
+  exception-recovery layer: deterministic accounting for the dollars,
+  autonomous investigation for the ambiguity, and human approval before action.
+ </p>
+</div>
+<div class="footer">
+  <div>Deterministic calculations · Source-backed evidence · Human approval gate</div>
+  <button onclick="prepareRecovery()" >Prepare Recovery</button>
+ </div>
+</div>
+
+<script>
+
+const investigationMessages=[
+ "Authenticated ERP connection established.",
+ "Purchase orders, invoices, payments, credits and supporting documents collected.",
+ "Transaction evidence normalized into comparable economic records.",
+ "Deterministic reconciliation engine comparing expected vs actual values.",
+ "Exceptions isolated for deeper investigation.",
+ "Source documents linked to each candidate finding.",
+ "5 high-confidence exceptions quantified.",
+ "Recovery packages prepared from supporting evidence.",
+ "Human approval required. External actions taken: 0."
+];
+
+async function runInvestigation(){
+  window.__LIVE_AUDIT_HAS_RUN__=true;
+  window.__LIVE_AUDIT_HAS_RUN__=true;
+  animateEconomicReconstruction();
+ const btn=document.querySelector(".investigateBtn");
+ const original=btn ? btn.textContent : "";
+
+ if(btn){
+   btn.disabled=true;
+   btn.textContent="RUNNING LIVE ERP AUDIT...";
+ }
+
+ const activity=document.querySelector(
+   ".activityStream, .activity, #activity"
+ );
+
+ try{
+   const response=await fetch(
+     "/api/run-audit",
+     {
+       method:"POST",
+       headers:{
+         "Content-Type":"application/json"
+       },
+       cache:"no-store"
+     }
+   );
+
+   const result=await response.json();
+
+   if(!response.ok){
+     throw new Error(
+       result.error || "Live audit failed."
+     );
+   }
+
+   REAL_AUDIT=result;
+  updateRealAuditScope(REAL_AUDIT);
+  revealLiveFindings(REAL_AUDIT.findings);
+
+   // Update primary economic outcome.
+   const moneyNodes=[
+     ...document.querySelectorAll(
+       "[data-live-recovery]"
+     )
+   ];
+
+   moneyNodes.forEach(el=>{
+     el.textContent=
+       "$"+
+       Number(
+         REAL_AUDIT.potential_recovery||0
+       ).toLocaleString("en-US");
+   });
+
+   // Existing dashboard refresh hooks.
+   if(typeof hydrateRealAudit==="function"){
+     hydrateRealAudit();
+   }
+
+   if(typeof updateFromRealAudit==="function"){
+     updateFromRealAudit();
+   }
+
+   // Proof banner.
+   let proof=document.getElementById(
+     "liveRunProof"
+   );
+
+   if(!proof){
+     proof=document.createElement("div");
+     proof.id="liveRunProof";
+
+     proof.style.cssText=[
+       "position:fixed",
+       "right:24px",
+       "bottom:24px",
+       "z-index:99999",
+       "max-width:440px",
+       "padding:16px 18px",
+       "border:1px solid #2bdf91",
+       "border-radius:12px",
+       "background:#07120e",
+       "color:#eafff5",
+       "font:13px/1.5 system-ui",
+       "box-shadow:0 16px 50px rgba(0,0,0,.45)"
+     ].join(";");
+
+     document.body.appendChild(proof);
+
+     const closeProof=document.createElement("button");
+     closeProof.textContent="×";
+     closeProof.setAttribute("aria-label","Close audit result");
+     closeProof.style.cssText=
+       "position:absolute;right:9px;top:7px;background:none;"+
+       "border:0;color:#fff;font-size:17px;cursor:pointer";
+
+     closeProof.onclick=()=>{
+       proof.style.display="none";
+     };
+
+     proof.style.position="fixed";
+     proof.appendChild(closeProof);
+   }
+
+   proof.style.display="block";
+
+   proof.innerHTML=
+     "<strong>LIVE ERP AUDIT COMPLETE</strong><br>"+
+     "Run "+REAL_AUDIT.run_id+"<br>"+
+     REAL_AUDIT.exception_count+
+     " exceptions · $"+
+     Number(
+       REAL_AUDIT.potential_recovery
+     ).toLocaleString("en-US")+
+     " potential recovery<br>"+
+     "ERPNext · READ ONLY · "+
+     REAL_AUDIT.duration_seconds+
+     "s · 0 external actions";
+
+   const proofClose=document.createElement("button");
+   proofClose.textContent="×";
+   proofClose.setAttribute("aria-label","Close audit result");
+   proofClose.style.cssText=
+     "position:absolute;right:9px;top:7px;background:none;"+
+     "border:0;color:#fff;font-size:17px;cursor:pointer";
+   proofClose.onclick=()=>proof.style.display="none";
+   proof.appendChild(proofClose);
+
+   console.log(
+     "FRESH LIVE ERP AUDIT",
+     REAL_AUDIT
+   );
+
+ }catch(err){
+   console.error(err);
+
+   alert(
+     "Live audit could not complete.\n\n"+
+     err.message+
+     "\n\nNo external action was taken."
+   );
+
+ }finally{
+   if(btn){
+     btn.disabled=false;
+     btn.textContent=
+       original ||
+       "▶ RUN AUTONOMOUS INVESTIGATION";
+   }
+ }
+}
+
+function finishInvestigation(){
+ document.getElementById("scanOverlay").classList.remove("active");
+}
+
+let REAL_AUDIT=null;
+
+async function loadRealAudit(){
+ const r=await fetch("live-audit.json?t="+Date.now());
+ if(!r.ok) throw new Error("Could not load real audit result");
+ REAL_AUDIT=await r.json();
+
+ document.getElementById("auditProof").style.display="block";
+
+ console.log("REAL ERP AUDIT LOADED",REAL_AUDIT);
+}
+
+loadRealAudit().catch(console.error);
+
+const DATA={"generated_at": "2026-09-24T20:33:23.501Z", "audit_status": "COMPLETE", "company": "Givens Vale (Demo)", "potential_recovery": 38735, "high_confidence_exceptions": 5, "ground_truth_used": false, "findings": [{"id": "A1", "title": "Supplier rebate shortfall", "supplier": "Summit Traders Ltd.", "recovery": 12240, "confidence": "HIGH", "evidence": ["Summit-Q1-2026-Rebate-Agreement.txt", "ACC-PINV-2026-00002", "ACC-PINV-2026-00005", "ACC-PINV-2026-00012", "ACC-PINV-2026-00013", "ACC-PINV-2026-00014", "ACC-PINV-2026-00015", "ACC-JV-2026-00001"], "explanation": "Q1 eligible spend reached the 6% rebate tier. Expected rebate was $36,720; only $24,480 was credited.", "action": "Request the remaining $12,240 supplier rebate credit."}, {"id": "A2", "title": "Purchase price variance", "supplier": "MA Inc.", "recovery": 3375, "confidence": "HIGH", "evidence": ["PUR-ORD-2026-00008", "ACC-PINV-2026-00018"], "explanation": "Approved PO value was $40,293. Supplier invoice value was $43,668.", "action": "Request correction or credit for the $3,375 variance."}, {"id": "A3", "title": "Duplicate economic invoice", "supplier": "Zuckerman Security Ltd.", "recovery": 9750, "confidence": "HIGH", "evidence": ["ACC-PINV-2026-00019", "ACC-PINV-2026-00020"], "explanation": "Two submitted invoices represent the same supplier, item, quantity, rate and $9,750 economic event under different references.", "action": "Verify duplicate status and request reversal/credit of $9,750."}, {"id": "A4", "title": "Approved credit missing from ledger", "supplier": "Summit Traders Ltd.", "recovery": 8400, "confidence": "HIGH", "evidence": ["Summit-Approved-Credit-8400.txt"], "explanation": "Supplier documentation approves an $8,400 credit, but no corresponding submitted credit or journal posting was found.", "action": "Request issuance/posting of the approved $8,400 credit."}, {"id": "A5", "title": "Supplier credit not applied at settlement", "supplier": "MA Inc.", "recovery": 4970, "confidence": "HIGH", "evidence": ["ACC-JV-2026-00002", "ACC-PINV-2026-00006", "ACC-PAY-2026-00003"], "explanation": "A $4,970 supplier credit existed before settlement, while the related $40,404 invoice was subsequently paid in full.", "action": "Reconcile the unapplied $4,970 supplier credit."}], "recovery_packages": [{"id": "A1", "supplier": "Summit Traders Ltd.", "amount": 12240, "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED", "subject": "account reconciliation: A1", "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $12,240 exception related to supplier rebate shortfall.\n\nOur supporting records are:\n- Summit-Q1-2026-Rebate-Agreement.txt\n- ACC-PINV-2026-00002\n- ACC-PINV-2026-00005\n- ACC-PINV-2026-00012\n- ACC-PINV-2026-00013\n- ACC-PINV-2026-00014\n- ACC-PINV-2026-00015\n- ACC-JV-2026-00001\n\nFinding:\nQ1 eligible spend reached the 6% rebate tier. Expected rebate was $36,720; only $24,480 was credited.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."}, {"id": "A2", "supplier": "MA Inc.", "amount": 3375, "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED", "subject": "account reconciliation: A2", "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $3,375 exception related to purchase price variance.\n\nOur supporting records are:\n- PUR-ORD-2026-00008\n- ACC-PINV-2026-00018\n\nFinding:\nApproved PO value was $40,293. Supplier invoice value was $43,668.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."}, {"id": "A3", "supplier": "Zuckerman Security Ltd.", "amount": 9750, "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED", "subject": "account reconciliation: A3", "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $9,750 exception related to duplicate economic invoice.\n\nOur supporting records are:\n- ACC-PINV-2026-00019\n- ACC-PINV-2026-00020\n\nFinding:\nTwo submitted invoices represent the same supplier, item, quantity, rate and $9,750 economic event under different references.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."}, {"id": "A4", "supplier": "Summit Traders Ltd.", "amount": 8400, "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED", "subject": "account reconciliation: A4", "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $8,400 exception related to approved credit missing from ledger.\n\nOur supporting records are:\n- Summit-Approved-Credit-8400.txt\n\nFinding:\nSupplier documentation approves an $8,400 credit, but no corresponding submitted credit or journal posting was found.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."}, {"id": "A5", "supplier": "MA Inc.", "amount": 4970, "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED", "subject": "account reconciliation: A5", "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $4,970 exception related to supplier credit not applied at settlement.\n\nOur supporting records are:\n- ACC-JV-2026-00002\n- ACC-PINV-2026-00006\n- ACC-PAY-2026-00003\n\nFinding:\nA $4,970 supplier credit existed before settlement, while the related $40,404 invoice was subsequently paid in full.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."}], "approval_gate": {"required": true, "approved": false, "external_messages_sent": 0}};
+const root=document.getElementById('findings');
+
+const details={
+ A1:{
+  calc:`$612,000 eligible Q1 purchases
+× 6% contractual rebate
+= $36,720 expected
+− $24,480 credited
+= $12,240 potential recovery`,
+  records:[
+   ['Purchase Invoices','ACC-PINV-2026-00002, 00005, 00012–00015','Eligible Q1 spend: $612,000'],
+   ['Journal Entry','ACC-JV-2026-00001','Supplier rebate credited: $24,480'],
+   ['Agreement','Summit-Q1-2026-Rebate-Agreement.txt','Applicable $500,000+ tier: 6%']
+  ]
+ },
+ A2:{
+  calc:`$43,668 invoiced
+− $40,293 approved
+= $3,375 potential recovery`,
+  records:[
+   ['Purchase Order','PUR-ORD-2026-00008','Approved value: $40,293'],
+   ['Purchase Invoice','ACC-PINV-2026-00018','Invoiced value: $43,668']
+  ]
+ },
+ A3:{
+  calc:`Invoice 1: $9,750
+Invoice 2: $9,750
+same supplier + item + quantity + rate + economic event
+= $9,750 potential duplicate`,
+  records:[
+   ['Purchase Invoice','ACC-PINV-2026-00019','$9,750'],
+   ['Purchase Invoice','ACC-PINV-2026-00020','$9,750']
+  ]
+ },
+ A4:{
+  calc:`$8,400 approved supplier credit
+− $0 corresponding ledger credit found
+= $8,400 potential recovery`,
+  records:[
+   ['Supplier Credit Approval','Summit-Approved-Credit-8400.txt','Approved: $8,400'],
+   ['Ledger Search','Submitted supplier credits / journal entries','Matching posted credit: $0']
+  ]
+ },
+ A5:{
+  calc:`$4,970 supplier credit existed
+related invoice: $40,404
+payment allocated to invoice: $40,404
+credit applied to settlement: $0
+= $4,970 unapplied credit`,
+  records:[
+   ['Journal Entry','ACC-JV-2026-00002','Supplier credit: $4,970'],
+   ['Purchase Invoice','ACC-PINV-2026-00006','Invoice: $40,404'],
+   ['Payment Entry','ACC-PAY-2026-00003','Allocated to invoice: $40,404']
+  ]
+ }
+};
+
+const ERP='https://erpnext-dbe-squ.v.frappe.cloud/app/';
+
+function erpUrl(type,id){
+ if(type==='Purchase Invoice') return ERP+'purchase-invoice/'+id;
+ if(type==='Purchase Order') return ERP+'purchase-order/'+id;
+ if(type==='Journal Entry') return ERP+'journal-entry/'+id;
+ if(type==='Payment Entry') return ERP+'payment-entry/'+id;
+ return null;
+}
+
+function openFinding(f){
+ const d=details[f.id];
+ const rows=d.records.map(r=>{
+   const url=erpUrl(r[0],r[1]);
+   return `<div class="sourceBox">
+    <div class="sourceTag">SOURCE: ERPNEXT · RETRIEVED FROM SYSTEM OF RECORD</div>
+    <b>${r[0]}</b><br>
+    ${r[1]}<br>
+    <strong>${r[2]}</strong>
+    ${url?`<br><a class="erpBtn" target="_blank" rel="noopener" href="${url}">View Source Record ↗</a>`:''}
+   </div>`;
+ }).join('');
+
+ document.getElementById('drawerContent').innerHTML=`
+  <div class="id">${f.id} · SOURCE EVIDENCE</div>
+  <h1>${f.title}</h1>
+  <div style="color:#91a6c5">${f.supplier}</div>
+  <div class="amount">$${f.recovery.toLocaleString()}</div>
+  <h3>How was this found?</h3>
+  <div class="calc">${d.calc}</div>
+  <h3>Evidence chain</h3>
+  ${rows}
+  <div class="action"><b>RECOMMENDED ACTION</b><br>${f.action}</div>
+  <div class="sourceBox"><b>CONTROL</b><br>No external action occurs without human approval.</div>`;
+
+ document.getElementById('drawer').classList.add('open');
+ document.getElementById('overlay').classList.add('open');
+}
+
+
+function money(n){
+ return "$"+Number(n||0).toLocaleString("en-US");
+}
+
+function prepareRecovery(){
+ if(!REAL_AUDIT || !REAL_AUDIT.findings || !REAL_AUDIT.findings.length){
+   alert("Run/load the ERP audit first.");
+   return;
+ }
+
+ // Pitch flow: open the largest proven finding first.
+ const f=[...REAL_AUDIT.findings]
+   .sort((a,b)=>Number(b.recovery)-Number(a.recovery))[0];
+
+ const labels={
+  REBATE_SHORTFALL:"Supplier Rebate Shortfall",
+  PO_INVOICE_VARIANCE:"PO / Invoice Variance",
+  POTENTIAL_DUPLICATE_INVOICE:"Potential Duplicate Invoice",
+  APPROVED_CREDIT_NOT_POSTED:"Approved Credit Not Posted",
+  UNAPPLIED_SUPPLIER_CREDIT:"Unapplied Supplier Credit"
+ };
+
+ document.getElementById("recoveryTitle").textContent=
+   labels[f.type] || f.type;
+
+ document.getElementById("recoverySupplier").textContent=
+   f.supplier || "Supplier";
+
+ document.getElementById("recoveryAmount").textContent=
+   money(f.recovery);
+
+ document.getElementById("recoveryEvidence").innerHTML=
+   (f.evidence||[]).map(x=>
+     `<div class="check">✓ ${x}</div>`
+   ).join("");
+
+ let detail="";
+
+ if(f.type==="REBATE_SHORTFALL"){
+   detail=
+`Our reconciliation of Q1 2026 purchasing and rebate records identified a potential rebate shortfall.
+
+Eligible purchases: ${money(612000)}
+Contractual rebate: 6%
+Expected rebate: ${money(f.expected)}
+Credit identified: ${money(f.actual)}
+Potential remaining credit: ${money(f.recovery)}
+
+Could you review the attached supporting records and confirm whether the remaining ${money(f.recovery)} credit is due?`;
+ } else {
+   detail=
+`Our reconciliation identified a potential ${money(f.recovery)} account exception.
+
+Finding type: ${labels[f.type] || f.type}
+
+Supporting records:
+${(f.evidence||[]).map(x=>"• "+x).join("\n")}
+
+Could you review this against your records and confirm whether a correction or credit is due?`;
+ }
+
+ document.getElementById("recoveryDraft").textContent=detail;
+ document.getElementById("approvalStatus").textContent=
+   "NOT APPROVED · 0 EXTERNAL ACTIONS";
+
+ document.getElementById("recoveryOverlay").classList.add("open");
+}
+
+function closeRecovery(){
+ document.getElementById("recoveryOverlay").classList.remove("open");
+}
+
+function simulateApproval(){
+ document.getElementById("approvalStatus").textContent=
+   "REVIEW OPENED · STILL NOT SENT · 0 EXTERNAL ACTIONS";
+}
+
+function closeDrawer(){
+ document.getElementById('drawer').classList.remove('open');
+ document.getElementById('overlay').classList.remove('open');
+}
+
+DATA.findings.forEach(f=>{
+ const c=document.createElement('div');
+ c.className='card';
+ c.onclick=()=>openFinding(f);
+ c.innerHTML=`
+  <div><span class="id">${f.id}</span> <span class="high">${f.confidence} CONFIDENCE</span></div>
+  <h2>${f.title}</h2>
+  <div style="color:#8499b8">${f.supplier}</div>
+  <div class="amount">$${f.recovery.toLocaleString()}</div>
+  <div class="explain">${f.explanation}</div>
+  <div class="evidence"><b>EVIDENCE CHAIN</b><br>${f.evidence.map(x=>'↳ '+x).join('<br>')}</div>
+  <div class="action"><b>RECOMMENDED ACTION</b><br>${f.action}</div>`;
+ root.appendChild(c);
+});
+</script>
+
+<style>
+#realEvidenceStream{
+  position:fixed;
+  left:24px;
+  bottom:24px;
+  width:min(560px,calc(100vw - 48px));
+  max-height:430px;
+  overflow:auto;
+  z-index:99998;
+  padding:18px;
+  border:1px solid rgba(120,255,190,.28);
+  border-radius:14px;
+  background:rgba(4,10,8,.96);
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+  font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:#dfffee;
+  display:none;
+}
+#realEvidenceStream .streamTitle{
+  font-family:system-ui,sans-serif;
+  font-weight:700;
+  letter-spacing:.04em;
+  margin-bottom:12px;
+}
+#realEvidenceStream .streamMeta{
+  color:#91a69b;
+  margin-bottom:12px;
+}
+#realEvidenceStream .streamLine{
+  padding:5px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+#realEvidenceStream .exception{
+  font-weight:700;
+  color:#baffd8;
+}
+#realEvidenceStream .complete{
+  margin-top:10px;
+  padding-top:10px;
+  font-family:system-ui,sans-serif;
+  font-size:15px;
+  font-weight:800;
+}
+</style>
+
+<div id="realEvidenceStream">
+  <button
+    onclick="document.getElementById('realEvidenceStream').style.display='none'"
+    style="position:absolute;right:12px;top:10px;background:none;
+    border:1px solid #405047;border-radius:7px;color:#fff;
+    cursor:pointer;padding:4px 9px;font-size:15px;z-index:2"
+    aria-label="Close live activity">×</button>
+  <div class="streamTitle">LIVE SYSTEM ACTIVITY</div>
+  <div class="streamMeta" id="realStreamMeta"></div>
+  <div id="realStreamLines"></div>
+
+<button id="closeRealEvidenceStream"
+  type="button"
+  onclick="document.getElementById('realEvidenceStream').style.display='none'"
+  style="
+    position:sticky;
+    bottom:0;
+    float:right;
+    margin-top:14px;
+    padding:8px 14px;
+    border-radius:8px;
+    border:1px solid #53685d;
+    background:#101b16;
+    color:#ffffff;
+    font-weight:700;
+    cursor:pointer;
+    z-index:100001;
+  ">
+  CLOSE
+</button>
+</div>
+
+<script>
+function moneyLive(v){
+  return "$"+Number(v||0).toLocaleString(
+    "en-US",
+    {minimumFractionDigits:0,maximumFractionDigits:2}
+  );
+}
+
+function sleepLive(ms){
+  return new Promise(resolve=>setTimeout(resolve,ms));
+}
+
+
+const ERP_BASE="https://erpnext-dbe-squ.v.frappe.cloud/app/";
+
+function evidenceURL(id){
+  if(/^ACC-PINV-/.test(id))
+    return ERP_BASE+"purchase-invoice/"+encodeURIComponent(id);
+
+  if(/^PUR-ORD-/.test(id))
+    return ERP_BASE+"purchase-order/"+encodeURIComponent(id);
+
+  if(/^ACC-JV-/.test(id))
+    return ERP_BASE+"journal-entry/"+encodeURIComponent(id);
+
+  if(/^ACC-PAY-/.test(id))
+    return ERP_BASE+"payment-entry/"+encodeURIComponent(id);
+
+  return null;
+}
+
+function evidenceHTML(ids){
+  return ids.map(id=>{
+    const url=evidenceURL(id);
+
+    if(!url){
+      return '<span class="evidenceDoc">'+id+'</span>';
+    }
+
+    return '<a class="evidenceLink" href="'+url+
+      '" target="_blank" rel="noopener">'+id+'</a>';
+  }).join(" · ");
+}
+
+async function playRealEvidenceStream(result){
+  const box=document.getElementById("realEvidenceStream");
+  const lines=document.getElementById("realStreamLines");
+  const meta=document.getElementById("realStreamMeta");
+
+  if(!box || !lines || !result) return;
+
+  box.style.display="block";
+  lines.innerHTML="";
+
+  meta.textContent=
+    result.run_id+
+    " · ERPNext · READ ONLY · fresh run";
+
+  const events=[];
+
+  events.push(
+    "Connected to ERPNext system of record"
+  );
+
+  events.push(
+    "Suppliers discovered from transactions: "+
+    result.discovery.suppliers_found
+  );
+
+  events.push(
+    "Supplier documents examined: "+
+    result.discovery.supplier_documents_examined
+  );
+
+  events.push(
+    "Rebate agreements discovered: "+
+    result.discovery.rebate_agreements_found
+  );
+
+  events.push(
+    "Approved credit documents discovered: "+
+    result.discovery.approved_credit_documents_found
+  );
+
+  for(const f of result.findings){
+
+    if(f.type==="REBATE_SHORTFALL"){
+      events.push(
+        "Reading "+f.agreement_file
+      );
+
+      events.push(
+        "Contract rule discovered: "+
+        f.contractual_tier_source
+      );
+
+      events.push(
+        "Eligible Q1 purchases: "+
+        moneyLive(f.eligible_spend)
+      );
+
+      events.push(
+        "Expected rebate: "+
+        moneyLive(f.expected)+
+        " · ledger credit: "+
+        moneyLive(f.actual)
+      );
+
+      events.push({
+        exception:
+          "REBATE SHORTFALL → "+
+          moneyLive(f.recovery),
+        calculation:
+          moneyLive(f.eligible_spend)+
+          " × "+
+          (Number(f.contractual_rate)*100).toFixed(0)+
+          "% = "+
+          moneyLive(f.expected)+
+          " expected; "+
+          moneyLive(f.expected)+
+          " − "+
+          moneyLive(f.actual)+
+          " = "+
+          moneyLive(f.recovery),
+        evidence:f.evidence
+      });
+    }
+
+    else if(f.type==="PO_INVOICE_VARIANCE"){
+      events.push(
+        "Comparing purchase order to supplier invoice"
+      );
+
+      events.push(
+        "Approved amount: "+
+        moneyLive(f.expected)+
+        " · invoiced: "+
+        moneyLive(f.actual)
+      );
+
+      events.push({
+        exception:
+          "PO / INVOICE VARIANCE → "+
+          moneyLive(f.recovery),
+        evidence:f.evidence
+      });
+    }
+
+    else if(
+      f.type==="POTENTIAL_DUPLICATE_INVOICE"
+    ){
+      events.push(
+        "Testing invoice pairs for duplicate economic events"
+      );
+
+      events.push(
+        f.reason
+      );
+
+      events.push({
+        exception:
+          "POTENTIAL DUPLICATE → "+
+          moneyLive(f.recovery),
+        evidence:f.evidence
+      });
+    }
+
+    else if(
+      f.type==="APPROVED_CREDIT_NOT_POSTED"
+    ){
+      events.push(
+        "Approved supplier credit discovered in attached document"
+      );
+
+      events.push(
+        "Expected credit: "+
+        moneyLive(f.expected)+
+        " · posted to ledger: "+
+        moneyLive(f.actual)
+      );
+
+      events.push({
+        exception:
+          "APPROVED CREDIT NOT POSTED → "+
+          moneyLive(f.recovery),
+        evidence:f.evidence
+      });
+    }
+
+    else if(
+      f.type==="UNAPPLIED_SUPPLIER_CREDIT"
+    ){
+      events.push(
+        "Reconciling supplier credit against invoice settlement"
+      );
+
+      events.push(
+        f.reason
+      );
+
+      events.push({
+        exception:
+          "UNAPPLIED SUPPLIER CREDIT → "+
+          moneyLive(f.recovery),
+        evidence:f.evidence
+      });
+    }
+  }
+
+  for(const event of events){
+    const row=document.createElement("div");
+    row.className="streamLine";
+
+    if(typeof event==="string"){
+      row.textContent="✓ "+event;
+    }else{
+      row.classList.add("exception");
+
+      row.innerHTML=
+        "⚠ "+event.exception+
+        (event.calculation
+          ? "<br><span class='calculationProof'>"+
+            event.calculation+
+            "</span>"
+          : "")+
+        "<br><span style='color:#82988d;font-weight:400'>"+
+        "Evidence: "+
+        evidenceHTML(event.evidence)+
+        "</span>";
+    }
+
+    lines.appendChild(row);
+
+    // Keep page itself stationary.
+    // Only the evidence panel scrolls internally.
+    box.scrollTop=box.scrollHeight;
+
+    await sleepLive(150);
+  }
+
+  const complete=document.createElement("div");
+  complete.className="complete";
+
+  complete.innerHTML=
+    "AUDIT COMPLETE → "+
+    moneyLive(result.potential_recovery)+
+    " POTENTIAL RECOVERY"+
+    "<br><span style='font-size:12px;font-weight:500'>"+
+    result.exception_count+
+    " exceptions · "+
+    result.duration_seconds+
+    "s · ground truth used: NO · external actions: 0"+
+    "</span>";
+
+  lines.appendChild(complete);
+  box.scrollTop=box.scrollHeight;
+}
+
+/*
+Hook the actual fresh audit result.
+
+The live endpoint assigns REAL_AUDIT before this is called.
+We wrap fetch so the evidence stream only receives the response
+returned by POST /api/run-audit.
+*/
+(function(){
+  const originalFetch=window.fetch;
+
+  window.fetch=async function(...args){
+    const response=await originalFetch.apply(this,args);
+
+    try{
+      const target=String(args[0]||"");
+
+      if(
+        target.includes("/api/run-audit") &&
+        response.ok
+      ){
+        const copy=response.clone();
+        const result=await copy.json();
+
+        setTimeout(()=>{
+          playRealEvidenceStream(result);
+        },50);
+      }
+    }catch(err){
+      console.warn(
+        "Evidence stream could not render",
+        err
+      );
+    }
+
+    return response;
+  };
+})();
+</script>
+
+
+<style>
+#recoveryLifecycle{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.72);
+  z-index:100000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+#recoveryLifecycle .casePanel{
+  width:min(900px,96vw);
+  max-height:90vh;
+  overflow:auto;
+  background:#07100c;
+  border:1px solid rgba(120,255,190,.3);
+  border-radius:16px;
+  padding:24px;
+  color:#eafff3;
+  box-shadow:0 25px 80px rgba(0,0,0,.65);
+  font-family:system-ui,sans-serif;
+}
+.lifecycleSteps{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:18px 0;
+}
+.lifeStep{
+  padding:8px 11px;
+  border-radius:999px;
+  border:1px solid #33483e;
+  color:#83988d;
+  font-size:12px;
+  font-weight:700;
+}
+.lifeStep.done{
+  border-color:#38d98b;
+  color:#caffdf;
+  background:rgba(56,217,139,.08);
+}
+.lifeStep.wait{
+  border-color:#d8ad4c;
+  color:#ffe3a0;
+}
+.caseGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.caseBlock{
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:12px;
+  padding:15px;
+  background:rgba(255,255,255,.025);
+}
+.caseBlock h4{
+  margin:0 0 10px;
+  font-size:12px;
+  letter-spacing:.08em;
+  color:#8fa99c;
+}
+.caseEvidence{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:12px;
+  line-height:1.7;
+}
+.caseDraft{
+  white-space:pre-wrap;
+  line-height:1.6;
+  font-size:13px;
+}
+.approvalGate{
+  margin-top:18px;
+  border:1px solid #d8ad4c;
+  border-radius:12px;
+  padding:16px;
+  background:rgba(216,173,76,.06);
+}
+.approvalButtons{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+}
+.approvalButtons button{
+  cursor:pointer;
+  padding:10px 14px;
+  border-radius:9px;
+  border:1px solid #486055;
+  background:#101b16;
+  color:white;
+}
+#approveSyntheticRecovery{
+  border-color:#d8ad4c;
+}
+@media(max-width:700px){
+  .caseGrid{grid-template-columns:1fr;}
+}
+</style>
+
+<div id="recoveryLifecycle">
+ <div class="casePanel">
+   <div style="display:flex;justify-content:space-between;gap:20px">
+     <div>
+       <div style="font-size:12px;color:#7f988b">
+         RECOVERY CASE
+       </div>
+       <h2 id="caseTitle" style="margin:5px 0 0">
+         Preparing...
+       </h2>
+     </div>
+
+     <button onclick="closeRecoveryLifecycle()"
+       style="height:36px;background:none;border:1px solid #405047;
+       border-radius:8px;color:white;cursor:pointer">
+       CLOSE
+     </button>
+   </div>
+
+   <div class="lifecycleSteps">
+     <div class="lifeStep done">IDENTIFIED</div>
+     <div class="lifeStep done">PROVEN</div>
+     <div class="lifeStep done">PACKAGE READY</div>
+     <div class="lifeStep wait">AWAITING HUMAN APPROVAL</div>
+     <div class="lifeStep" style="display:none">RECOVERED</div>
+     <div class="lifeStep" style="display:none">LEDGER VERIFIED</div>
+   </div>
+
+   <div class="caseGrid">
+     <div class="caseBlock">
+       <h4>ECONOMIC PROOF</h4>
+       <div id="caseCalculation"></div>
+     </div>
+
+     <div class="caseBlock">
+       <h4>SOURCE EVIDENCE</h4>
+       <div id="caseEvidence" class="caseEvidence"></div>
+     </div>
+
+     <div class="caseBlock" style="grid-column:1/-1">
+       <h4>RECOVERY COMMUNICATION — DRAFT ONLY</h4>
+       <div id="caseDraft" class="caseDraft"></div>
+     </div>
+   </div>
+
+   <div class="approvalGate">
+     <strong id="humanApprovalHeading">HUMAN APPROVAL REQUIRED</strong>
+     <div style="margin-top:5px;color:#c6b985;font-size:13px">
+       No supplier communication, accounting entry, claim,
+       credit request, or other external action has been executed.
+     </div>
+
+     <div class="approvalButtons">
+       <button onclick="closeRecoveryLifecycle()">
+         KEEP AS DRAFT
+       </button>
+
+       <button id="approveSyntheticRecovery"
+         onclick="requestSyntheticApproval()">
+         REVIEW SYNTHETIC RECOVERY
+       </button>
+     </div>
+
+     <div id="approvalStatus"
+       style="margin-top:12px;font-size:12px;color:#ffe3a0">
+       NOT APPROVED · 0 EXTERNAL ACTIONS
+     </div>
+
+     <div id="postApprovalLifecycle" style="
+       margin-top:18px;
+       padding-top:16px;
+       border-top:1px solid rgba(255,255,255,.08);
+     ">
+       <div style="
+         font-size:10px;
+         letter-spacing:1.3px;
+         color:#71877b;
+         margin-bottom:10px;
+       ">
+         AFTER HUMAN APPROVAL
+       </div>
+
+       <div style="display:flex;gap:10px;flex-wrap:wrap">
+         <div class="lifeStep postApprovalStep" data-post-step="RECOVERED">
+           RECOVERED
+         </div>
+         <div class="lifeStep postApprovalStep" data-post-step="LEDGER VERIFIED">
+           LEDGER VERIFIED
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
+</div>
+
+<script>
+function largestRecoveryFinding(){
+  if(!REAL_AUDIT || !REAL_AUDIT.findings) return null;
+
+  return [...REAL_AUDIT.findings]
+    .sort((a,b)=>
+      Number(b.recovery||0)-Number(a.recovery||0)
+    )[0];
+}
+
+function openRecoveryLifecycle(){
+  const f=largestRecoveryFinding();
+
+  if(!f){
+    alert("Run the live ERP audit first.");
+    return;
+  }
+
+  const modal=document.getElementById("recoveryLifecycle");
+
+  document.getElementById("caseTitle").textContent=
+    (f.supplier||"Supplier")+
+    " · "+
+    moneyLive(f.recovery)+
+    " recovery case";
+
+  let calc="";
+
+  if(f.type==="REBATE_SHORTFALL"){
+    calc=
+      "<strong>"+
+      moneyLive(f.eligible_spend)+
+      " × "+
+      (Number(f.contractual_rate)*100).toFixed(0)+
+      "% = "+
+      moneyLive(f.expected)+
+      "</strong><br>"+
+      "Expected contractual rebate<br><br>"+
+      moneyLive(f.expected)+
+      " − "+
+      moneyLive(f.actual)+
+      " already credited = <strong>"+
+      moneyLive(f.recovery)+
+      " potential recovery</strong>";
+  }else{
+    calc=
+      "Expected: "+moneyLive(f.expected||0)+
+      "<br>Actual: "+moneyLive(f.actual||0)+
+      "<br><strong>Variance: "+
+      moneyLive(f.recovery)+"</strong>";
+  }
+
+  document.getElementById("caseCalculation").innerHTML=calc;
+
+  document.getElementById("caseEvidence").innerHTML=
+    evidenceHTML(f.evidence||[]);
+
+  const draft=
+`Subject: Q1 2026 rebate reconciliation
+
+Hi Summit team,
+
+We reconciled our Q1 2026 eligible purchases against the volume rebate agreement and the credit currently reflected in our records.
+
+Eligible purchases: ${moneyLive(f.eligible_spend)}
+Contractual rate: ${(Number(f.contractual_rate)*100).toFixed(0)}%
+Expected rebate: ${moneyLive(f.expected)}
+Credit reflected: ${moneyLive(f.actual)}
+Difference: ${moneyLive(f.recovery)}
+
+Could you review the attached supporting records and confirm whether the remaining ${moneyLive(f.recovery)} credit should be issued?
+
+Supporting evidence is included with the recovery case.
+
+Thank you.`;
+
+  document.getElementById("caseDraft").textContent=draft;
+
+  document.getElementById("approvalStatus").textContent=
+    "NOT APPROVED · 0 EXTERNAL ACTIONS";
+
+  modal.style.display="flex";
+}
+
+function closeRecoveryLifecycle(){
+  document.getElementById("recoveryLifecycle").style.display="none";
+}
+
+async function requestSyntheticApproval(){
+
+  const confirmed=window.confirm(
+    "APPROVE SYNTHETIC RECOVERY?\n\n"+
+    "This will post one $12,240 synthetic supplier recovery "+
+    "to the Givens Vale (Demo) ERPNext ledger.\n\n"+
+    "No email or supplier communication will be sent.\n\n"+
+    "After posting, the system will independently rerun the "+
+    "audit and will only mark LEDGER VERIFIED if the ERP "+
+    "evidence proves the rebate shortfall has been resolved."
+  );
+
+  if(!confirmed){
+    document.getElementById("approvalStatus").textContent=
+      "NOT APPROVED · 0 EXTERNAL ACTIONS";
+    return;
+  }
+
+  const btn=document.getElementById(
+    "approveSyntheticRecovery"
+  );
+
+  btn.disabled=true;
+  btn.textContent="EXECUTING APPROVED RECOVERY...";
+
+  const status=document.getElementById(
+    "approvalStatus"
+  );
+
+  status.innerHTML=
+    "<strong>APPROVED</strong><br>"+
+    "Posting synthetic recovery and independently "+
+    "verifying the ERP ledger...";
+
+  try{
+    const r=await fetch(
+      "/api/execute-synthetic-recovery",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        }
+      }
+    );
+
+    const result=await r.json();
+
+    if(!r.ok || !result.ledger_verified){
+      throw new Error(
+        result.error ||
+        "Ledger verification did not pass."
+      );
+    }
+
+    // Use independently rerun audit as current truth.
+    REAL_AUDIT=result.verification;
+
+    // Update lifecycle only AFTER verification passes.
+    const steps=[
+      ...document.querySelectorAll(
+        "#recoveryLifecycle .lifeStep"
+      )
+    ];
+
+    for(const step of steps){
+      const t=step.textContent.trim();
+
+      if(
+        t==="RECOVERED" ||
+        t==="LEDGER VERIFIED"
+      ){
+        step.classList.remove("wait");
+        step.classList.add("done");
+      }
+
+      if(t==="AWAITING HUMAN APPROVAL"){
+        step.classList.remove("wait");
+        step.classList.add("done");
+        step.textContent="HUMAN APPROVED";
+      }
+    }
+
+    const je=
+      result.action &&
+      result.action.journal_entry
+        ? result.action.journal_entry
+        : "verified journal entry";
+
+    status.innerHTML=
+      "<strong>RECOVERED · LEDGER VERIFIED</strong><br>"+
+      moneyLive(result.expected_recovery)+
+      " synthetic recovery posted as "+
+      evidenceHTML([je])+
+      ".<br>"+
+      "Independent ERP re-audit: "+
+      result.remaining_exception_count+
+      " exceptions remain · "+
+      moneyLive(
+        result.remaining_potential_recovery
+      )+
+      " remaining potential recovery.<br>"+
+      "Approved internal ERP actions: 1<br>"+
+      "External messages sent: 0";
+
+    
+btn.textContent="RECOVERY VERIFIED";
+
+const approvalHeading=document.getElementById(
+  "humanApprovalHeading"
+);
+
+if(approvalHeading){
+  approvalHeading.textContent=
+    "HUMAN APPROVAL COMPLETED";
+}
+
+const disclosure=document.getElementById(
+  "executionDisclosure"
+);
+
+if(disclosure){
+  disclosure.innerHTML=
+    "Approved synthetic accounting recovery executed "+
+    "and independently verified in ERPNext. "+
+    "<strong>No supplier communication was sent.</strong>";
+}
+
+const draftLabel=document.querySelector(
+  "#recoveryLifecycle [data-draft-label]"
+);
+
+if(draftLabel){
+  draftLabel.textContent=
+    "SUPPLIER COMMUNICATION REMAINS DRAFT";
+}
+
+
+    // Update the main proof state from fresh verification.
+    const proof=document.getElementById(
+      "liveRunProof"
+    );
+
+    if(proof){
+      proof.style.display="block";
+      proof.innerHTML=
+        '<button onclick="this.parentElement.style.display=\'none\'" '+
+        'style="position:absolute;right:14px;top:10px;background:none;border:0;color:#fff;font-size:22px;cursor:pointer">✕</button>'+
+        "<strong>LEDGER VERIFICATION COMPLETE</strong><br>"+
+        moneyLive(result.expected_recovery)+
+        " recovered and independently verified<br>"+
+        result.remaining_exception_count+
+        " unresolved exceptions · "+
+        moneyLive(
+          result.remaining_potential_recovery
+        )+
+        " remaining<br>"+
+        "ERPNext · 0 external messages";
+    }
+
+    console.log(
+      "SYNTHETIC RECOVERY VERIFIED",
+      result
+    );
+
+  }catch(err){
+    console.error(err);
+
+    status.innerHTML=
+      "<strong>VERIFICATION NOT COMPLETE</strong><br>"+
+      err.message+
+      "<br>No success state has been asserted.";
+
+    btn.disabled=false;
+    btn.textContent="RETRY VERIFIED RECOVERY";
+  }
+}
+
+/*
+Attach lifecycle launcher to existing Prepare Recovery controls.
+*/
+document.addEventListener("click",function(e){
+  const text=(e.target.textContent||"").trim().toLowerCase();
+
+  if(
+    text.includes("prepare recovery") &&
+    !e.target.closest("#recoveryLifecycle")
+  ){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    openRecoveryLifecycle();
+  }
+},true);
+</script>
+
+
+<div id="demoResetControl"
+     style="
+       position:fixed;
+       left:18px;
+       bottom:18px;
+       z-index:9998;
+     ">
+  <button
+    onclick="resetSyntheticDemo()"
+    style="
+      padding:10px 14px;
+      border-radius:9px;
+      border:1px solid rgba(255,255,255,.18);
+      background:#111827;
+      color:#d1d5db;
+      cursor:pointer;
+      font-size:11px;
+      letter-spacing:.08em;
+    ">
+    RESET DEMO BASELINE
+  </button>
+</div>
+
+
+<script>
+async function resetSyntheticDemo(){
+
+  const confirmed=window.confirm(
+    "RESET SYNTHETIC DEMO?\n\n"+
+    "This will cancel ONLY the approved Stage 2 "+
+    "$12,240 synthetic recovery journal and then "+
+    "independently rerun the ERP audit.\n\n"+
+    "Expected restored baseline:\n"+
+    "5 exceptions · $38,735 potential recovery.\n\n"+
+    "No supplier communication will be sent."
+  );
+
+  if(!confirmed) return;
+
+  const control=document.getElementById(
+    "demoResetControl"
+  );
+
+  if(control){
+    control.style.opacity=".55";
+    control.style.pointerEvents="none";
+  }
+
+  try{
+    const r=await fetch(
+      "/api/reset-synthetic-recovery",
+      {method:"POST"}
+    );
+
+    const result=await r.json();
+
+    if(!r.ok || !result.baseline_verified){
+      throw new Error(
+        result.error ||
+        "Baseline verification did not pass."
+      );
+    }
+
+    REAL_AUDIT=result.verification;
+
+    alert(
+      "DEMO BASELINE RESTORED\n\n"+
+      result.verification.exception_count+
+      " exceptions\n"+
+      "$"+
+      Number(
+        result.verification.potential_recovery
+      ).toLocaleString()+
+      " potential recovery\n\n"+
+      "Independent ERP verification passed."
+    );
+
+    location.reload();
+
+  }catch(err){
+
+    alert(
+      "RESET NOT VERIFIED\n\n"+
+      err.message+
+      "\n\nDo not rerun recovery until this "+
+      "is checked."
+    );
+
+    if(control){
+      control.style.opacity="1";
+      control.style.pointerEvents="auto";
+    }
+  }
+}
+</script>
+
+
+<style>
+.reconNode{
+  transition:.35s ease;
+}
+.reconNode.reconActive{
+  border-color:#66e5a0;
+  box-shadow:0 0 22px rgba(102,229,160,.18);
+  transform:translateY(-2px);
+}
+.reconNode.reconDone{
+  border-color:#3a7654;
+  background:#0a1b12;
+}
+.reconNode.reconDone:after{
+  content:" ✓";
+  color:#6ee7a5;
+}
+</style>
+
+<script>
+function resetReconstruction(){
+ document.querySelectorAll("[data-recon]").forEach(x=>{
+   x.classList.remove("reconActive","reconDone");
+ });
+}
+
+async function animateEconomicReconstruction(){
+ const stages=[
+   "transactions",
+   "terms",
+   "expected",
+   "ledger",
+   "exceptions"
+ ];
+
+ resetReconstruction();
+
+ for(const stage of stages){
+   const el=document.querySelector(
+     '[data-recon="'+stage+'"]'
+   );
+
+   if(!el) continue;
+
+   el.classList.add("reconActive");
+
+   await new Promise(r=>setTimeout(r,350));
+
+   el.classList.remove("reconActive");
+   el.classList.add("reconDone");
+ }
+}
+</script>
+
+
+<style>
+#preAuditState{
+  margin:18px 0;
+  padding:22px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:14px;
+  background:#070d09;
+}
+#preAuditState .zeroAmount{
+  font-size:42px;
+  font-weight:700;
+  margin:8px 0;
+}
+#preAuditState .zeroMeta{
+  color:#829087;
+  font-size:12px;
+}
+</style>
+
+<script>
+function applyTruePreAuditState(){
+  if(window.__LIVE_AUDIT_HAS_RUN__) return;
+
+  const findings=document.getElementById("findings");
+
+  if(findings){
+    findings.innerHTML=`
+      <div id="preAuditState">
+        <div style="font-size:10px;letter-spacing:1.4px;color:#718077">
+          RECOVERY AUDIT
+        </div>
+        <div class="zeroAmount">$0</div>
+        <div style="font-size:15px">
+          No investigation has been run.
+        </div>
+        <div class="zeroMeta" style="margin-top:8px">
+          Connect to the live ERP evidence and run the autonomous investigation
+          to reconstruct expected vs. actual economics.
+        </div>
+      </div>
+    `;
+  }
+
+  document.querySelectorAll("[data-recon]").forEach(x=>{
+    x.classList.remove("reconActive","reconDone");
+  });
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  setTimeout(applyTruePreAuditState,150);
+});
+</script>
+
+
+<style>
+#preAuditState{
+  margin:18px 0;
+  padding:22px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:14px;
+  background:#070d09;
+}
+#preAuditState .zeroAmount{
+  font-size:42px;
+  font-weight:700;
+  margin:8px 0;
+}
+#preAuditState .zeroMeta{
+  color:#829087;
+  font-size:12px;
+}
+</style>
+
+<script>
+function applyTruePreAuditState(){
+  if(window.__LIVE_AUDIT_HAS_RUN__) return;
+
+  const findings=document.getElementById("findings");
+
+  if(findings){
+    findings.innerHTML=`
+      <div id="preAuditState">
+        <div style="font-size:10px;letter-spacing:1.4px;color:#718077">
+          RECOVERY AUDIT
+        </div>
+        <div class="zeroAmount">$0</div>
+        <div style="font-size:15px">
+          No investigation has been run.
+        </div>
+        <div class="zeroMeta" style="margin-top:8px">
+          Connect to the live ERP evidence and run the autonomous investigation
+          to reconstruct expected vs. actual economics.
+        </div>
+      </div>
+    `;
+  }
+
+  document.querySelectorAll("[data-recon]").forEach(x=>{
+    x.classList.remove("reconActive","reconDone");
+  });
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  setTimeout(applyTruePreAuditState,150);
+});
+</script>
+
+</body>
+</html><style>
+.discoveryFinding{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:24px !important;
+}
+
+.discoveryFinding strong{
+  flex:1 !important;
+  line-height:1.45 !important;
+}
+
+.discoveryFinding span{
+  flex-shrink:0 !important;
+  margin-left:20px !important;
+  white-space:nowrap !important;
+}
+</style>

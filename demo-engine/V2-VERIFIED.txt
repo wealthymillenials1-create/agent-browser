@@ -1,0 +1,19 @@
+V2 DISCOVERY-DRIVEN AUDIT VERIFIED
+
+Source: ERPNext
+Mode: READ ONLY
+Ground truth used: NO
+Hardcoded supplier answers: NO
+
+Suppliers discovered from transactions: 3
+Rebate agreement discovered from ERP evidence: YES
+Credit approval discovered from ERP evidence: YES
+
+Exceptions discovered: 5 / 5
+Potential recovery: $38,735.00
+
+REBATE_SHORTFALL: $12,240.00
+PO_INVOICE_VARIANCE: $3,375.00
+POTENTIAL_DUPLICATE_INVOICE: $9,750.00
+APPROVED_CREDIT_NOT_POSTED: $8,400.00
+UNAPPLIED_SUPPLIER_CREDIT: $4,970.00

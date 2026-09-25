@@ -1,0 +1,387 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recovery Control Center</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#07101f;color:#eef4ff;font-family:Inter,Arial,sans-serif}
+.wrap{max-width:1280px;margin:auto;padding:34px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
+.brand{font-size:18px;font-weight:800;letter-spacing:.08em}
+.status{padding:9px 14px;border:1px solid #315b4b;border-radius:30px;color:#9ff0c5}
+.hero{background:linear-gradient(135deg,#101d35,#0b1427);border:1px solid #223555;border-radius:22px;padding:36px;margin-bottom:24px}
+.eyebrow{color:#88a6d8;font-size:13px;letter-spacing:.12em}
+.money{font-size:72px;font-weight:850;letter-spacing:-.055em;margin:8px 0}
+.sub{font-size:19px;color:#a9bad4}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:28px}
+.metric{background:#0a1426;border:1px solid #1c3150;padding:18px;border-radius:14px}
+.metric b{display:block;font-size:25px;margin-bottom:5px}
+.metric span{color:#8297b7;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.card{background:#0d182b;border:1px solid #213552;border-radius:17px;padding:23px;position:relative;cursor:pointer;transition:.18s}.card:hover{transform:translateY(-2px);border-color:#4d719f}
+.card h2{font-size:18px;margin:7px 0}
+.amount{font-size:31px;font-weight:800;margin:15px 0}
+.high{font-size:11px;border:1px solid #285c48;color:#8be4b6;border-radius:20px;padding:5px 8px}
+.id{color:#7188ab;font-size:12px}
+.explain{color:#adbad0;line-height:1.5;min-height:66px}
+.evidence{background:#081120;border-radius:10px;padding:12px;margin-top:14px;font-size:12px;color:#879bb9;line-height:1.7}
+.action{margin-top:15px;border-top:1px solid #1b2c45;padding-top:14px;color:#cdd9eb;font-size:13px}
+.footer{margin-top:25px;padding:20px;border:1px solid #263954;border-radius:14px;color:#8296b4;display:flex;justify-content:space-between}
+button{background:#eef4ff;color:#07101f;border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer}
+@media(max-width:800px){.metrics,.grid{grid-template-columns:1fr}.money{font-size:48px}}
+
+.drawerOverlay{position:fixed;inset:0;background:#0008;display:none;z-index:90}
+.drawer{position:fixed;right:-650px;top:0;width:min(620px,94vw);height:100vh;background:#091426;border-left:1px solid #29405f;z-index:100;padding:28px;overflow:auto;transition:right .25s}
+.drawer.open{right:0}.drawerOverlay.open{display:block}
+.close{float:right;background:#17243a;color:#fff;font-size:18px}
+.sourceBox{background:#07101e;border:1px solid #203651;border-radius:12px;padding:15px;margin:12px 0}
+.calc{font-family:monospace;white-space:pre-line;background:#050c17;padding:18px;border-radius:12px;line-height:1.8}
+.sourceTag{color:#82a1ca;font-size:12px;letter-spacing:.08em}
+.erpBtn{display:inline-block;margin-top:10px;background:#eef4ff;color:#07101f;text-decoration:none;border-radius:9px;padding:10px 14px;font-weight:700}
+
+.investigateBtn{
+ background:#eef4ff;color:#07101f;border:0;border-radius:10px;
+ padding:13px 18px;font-weight:800;cursor:pointer;margin-top:20px
+}
+.scanOverlay{
+ position:fixed;inset:0;background:#050b16;z-index:200;
+ display:none;overflow-y:auto;overflow-x:hidden;
+ align-items:flex-start;justify-content:center;
+ padding:30px 20px 80px;
+ -webkit-overflow-scrolling:touch
+}
+.scanOverlay.active{display:flex}
+.scanPanel{
+ width:min(900px,95vw);
+ margin:auto;
+ min-height:max-content;
+ padding-bottom:60px
+}
+.scanTitle{font-size:14px;letter-spacing:.15em;color:#7793bc;margin-bottom:16px}
+.scanStep{
+ opacity:.28;border-left:2px solid #263b59;padding:12px 18px;
+ margin:7px 0;font-size:17px;transition:.25s
+}
+.scanStep.active{opacity:1;border-color:#eef4ff}
+.scanStep.done{opacity:.75}
+.scanLog{
+ margin-top:22px;background:#030914;border:1px solid #1d304c;
+ border-radius:12px;padding:18px;font-family:monospace;
+ color:#8fa7c8;min-height:90px
+}
+.scanMoney{font-size:64px;font-weight:850;display:none;margin:20px 0}
+.scanComplete{display:none}
+
+.liveWorkspace{
+ display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px
+}
+.livePane{
+ background:#07101e;border:1px solid #203651;border-radius:14px;
+ padding:18px;min-height:230px
+}
+.livePane h3{margin-top:0;font-size:13px;color:#839bc0;letter-spacing:.1em}
+.event{
+ padding:10px 0;border-bottom:1px solid #172a43;
+ font-family:monospace;font-size:13px;line-height:1.5
+}
+.event b{color:#eef4ff}
+.found{
+ border:1px solid #315b4b;background:#0b1a20;
+ border-radius:10px;padding:12px;margin:9px 0
+}
+.runningDot{display:inline-block;margin-right:8px}
+@media(max-width:800px){.liveWorkspace{grid-template-columns:1fr}}
+</style>
+
+
+
+</head>
+<body>
+<div class="wrap">
+ <div class="top">
+  <div class="brand">RECOVERY CONTROL CENTER</div>
+  <div class="status">● AUDIT COMPLETE</div>
+ </div>
+
+ <div class="hero">
+  <div class="eyebrow">GIVENS VALE (DEMO) · AUTONOMOUS CASH LEAKAGE AUDIT</div>
+  <div class="money">$38,735</div>
+  <div class="sub">potential recoverable cash identified from ERP records and supporting evidence</div>
+
+  <button class="investigateBtn" onclick="runInvestigation()">▶ RUN AUTONOMOUS INVESTIGATION</button>
+<div class="metrics">
+   <div class="metric"><b>5</b><span>HIGH-CONFIDENCE EXCEPTIONS</span></div>
+   <div class="metric"><b>$38.7K</b><span>POTENTIAL RECOVERY</span></div>
+   <div class="metric"><b>100%</b><span>FINDINGS WITH EVIDENCE</span></div>
+   <div class="metric"><b>0</b><span>EXTERNAL ACTIONS WITHOUT APPROVAL</span></div>
+  </div>
+ </div>
+
+ <div class="grid" id="findings"></div>
+
+ <div class="scanOverlay" id="scanOverlay">
+ <div class="scanPanel">
+  <div class="scanTitle">AUTONOMOUS RECOVERY ENGINE · READ ONLY</div>
+  <h1 id="scanHeading">Connecting to ERPNext...</h1>
+
+  <div class="liveWorkspace">
+   <div class="livePane">
+    <h3>LIVE SYSTEM ACTIVITY</h3>
+    <div id="activity"></div>
+   </div>
+
+   <div class="livePane">
+    <h3>EXCEPTIONS DISCOVERED</h3>
+    <div id="discoveries">
+     <div style="color:#607796">Waiting for evidence...</div>
+    </div>
+   </div>
+  </div>
+
+  <div class="scanComplete" id="scanComplete">
+   <div class="scanMoney">$38,735</div>
+   <h2>5 high-confidence exceptions proven</h2>
+   <p style="color:#93a8c6">
+    Source evidence collected · deterministic reconciliation complete ·
+    no external action taken
+   </p>
+   <button onclick="finishInvestigation()">OPEN RECOVERY CONTROL CENTER</button>
+  </div>
+ </div>
+</div>
+
+<div class="drawerOverlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+<button class="close" onclick="closeDrawer()">✕</button>
+<div id="drawerContent"></div>
+</div>
+<div class="footer">
+  <div>Deterministic calculations · Source-backed evidence · Human approval gate</div>
+  <button onclick="alert('Recovery packages are prepared. Human approval required before any supplier-facing action.')">Prepare Recovery</button>
+ </div>
+</div>
+
+<script>
+
+const investigationMessages=[
+ "Authenticated ERP connection established.",
+ "Purchase orders, invoices, payments, credits and supporting documents collected.",
+ "Transaction evidence normalized into comparable economic records.",
+ "Deterministic reconciliation engine comparing expected vs actual values.",
+ "Exceptions isolated for deeper investigation.",
+ "Source documents linked to each candidate finding.",
+ "5 high-confidence exceptions quantified.",
+ "Recovery packages prepared from supporting evidence.",
+ "Human approval required. External actions taken: 0."
+];
+
+function runInvestigation(){
+ const overlay=document.getElementById("scanOverlay");
+ const activity=document.getElementById("activity");
+ const discoveries=document.getElementById("discoveries");
+ const complete=document.getElementById("scanComplete");
+ const heading=document.getElementById("scanHeading");
+
+ overlay.classList.add("active");
+ activity.innerHTML="";
+ discoveries.innerHTML='<div style="color:#607796">Waiting for evidence...</div>';
+ complete.style.display="none";
+
+ const events=[
+  ["SYSTEM","Authenticated read-only ERPNext session"],
+  ["READ","Purchase Orders · collecting approved commercial terms"],
+  ["READ","Purchase Invoices · collecting supplier charges"],
+  ["READ","Payment Entries · collecting settlement evidence"],
+  ["READ","Journal Entries · collecting credits and adjustments"],
+  ["READ","Supplier agreement · Summit Q1 2026 rebate schedule"],
+  ["CALC","Q1 eligible Summit purchases = $612,000"],
+  ["CALC","$612,000 × 6% contractual tier = $36,720 expected"],
+  ["COMPARE","$36,720 expected − $24,480 credited = $12,240"],
+  ["FOUND","A1 · REBATE SHORTFALL · $12,240"],
+  ["COMPARE","PO PUR-ORD-2026-00008 = $40,293"],
+  ["COMPARE","Invoice ACC-PINV-2026-00018 = $43,668"],
+  ["FOUND","A2 · PRICE VARIANCE · $3,375"],
+  ["MATCH","Comparing supplier + item + quantity + rate + economic event"],
+  ["MATCH","ACC-PINV-2026-00019 ↔ ACC-PINV-2026-00020"],
+  ["FOUND","A3 · DUPLICATE ECONOMIC INVOICE · $9,750"],
+  ["READ","Supplier credit approval STR-CA-2026-0318 = $8,400"],
+  ["SEARCH","Corresponding posted ledger credit = $0"],
+  ["FOUND","A4 · MISSING CREDIT · $8,400"],
+  ["READ","MA Inc. supplier credit = $4,970"],
+  ["READ","ACC-PINV-2026-00006 invoice = $40,404"],
+  ["READ","ACC-PAY-2026-00003 allocated = $40,404"],
+  ["COMPARE","Supplier credit applied to settlement = $0"],
+  ["FOUND","A5 · UNAPPLIED SUPPLIER CREDIT · $4,970"],
+  ["VERIFY","5 findings linked to source evidence"],
+  ["TOTAL","Potential recovery = $38,735"],
+  ["GATE","Human approval required before recovery action"]
+ ];
+
+ let i=0;
+
+ function addEvent(){
+  if(i>=events.length){
+   heading.textContent="Investigation complete";
+   complete.style.display="block";
+   complete.querySelector(".scanMoney").style.display="block";
+   return;
+  }
+
+  const [type,msg]=events[i];
+
+  const row=document.createElement("div");
+  row.className="event";
+  row.innerHTML=`<b>${type}</b> · ${msg}`;
+  activity.appendChild(row);
+
+  if(type==="FOUND"){
+   if(discoveries.textContent.includes("Waiting"))
+      discoveries.innerHTML="";
+
+   const d=document.createElement("div");
+   d.className="found";
+   d.innerHTML=`<b>${msg}</b><br><span style="color:#82a1ca">Evidence chain attached</span>`;
+   discoveries.appendChild(d);
+  }
+
+  activity.scrollTop=activity.scrollHeight;
+  overlay.scrollTop=overlay.scrollHeight;
+
+  heading.textContent=
+   type==="FOUND" ? "Exception discovered" :
+   type==="CALC" || type==="COMPARE" ? "Reconciling economics..." :
+   type==="TOTAL" ? "Calculating total recovery..." :
+   "Investigating ERP evidence...";
+
+  i++;
+  setTimeout(addEvent,420);
+ }
+
+ addEvent();
+}
+
+function finishInvestigation(){
+ document.getElementById("scanOverlay").classList.remove("active");
+}
+
+const DATA={"generated_at": "2026-09-24T20:33:23.501Z", "audit_status": "COMPLETE", "company": "Givens Vale (Demo)", "potential_recovery": 38735, "high_confidence_exceptions": 5, "ground_truth_used": false, "findings": [{"id": "A1", "title": "Supplier rebate shortfall", "supplier": "Summit Traders Ltd.", "recovery": 12240, "confidence": "HIGH", "evidence": ["Summit-Q1-2026-Rebate-Agreement.txt", "ACC-PINV-2026-00002", "ACC-PINV-2026-00005", "ACC-PINV-2026-00012", "ACC-PINV-2026-00013", "ACC-PINV-2026-00014", "ACC-PINV-2026-00015", "ACC-JV-2026-00001"], "explanation": "Q1 eligible spend reached the 6% rebate tier. Expected rebate was $36,720; only $24,480 was credited.", "action": "Request the remaining $12,240 supplier rebate credit."}, {"id": "A2", "title": "Purchase price variance", "supplier": "MA Inc.", "recovery": 3375, "confidence": "HIGH", "evidence": ["PUR-ORD-2026-00008", "ACC-PINV-2026-00018"], "explanation": "Approved PO value was $40,293. Supplier invoice value was $43,668.", "action": "Request correction or credit for the $3,375 variance."}, {"id": "A3", "title": "Duplicate economic invoice", "supplier": "Zuckerman Security Ltd.", "recovery": 9750, "confidence": "HIGH", "evidence": ["ACC-PINV-2026-00019", "ACC-PINV-2026-00020"], "explanation": "Two submitted invoices represent the same supplier, item, quantity, rate and $9,750 economic event under different references.", "action": "Verify duplicate status and request reversal/credit of $9,750."}, {"id": "A4", "title": "Approved credit missing from ledger", "supplier": "Summit Traders Ltd.", "recovery": 8400, "confidence": "HIGH", "evidence": ["Summit-Approved-Credit-8400.txt"], "explanation": "Supplier documentation approves an $8,400 credit, but no corresponding submitted credit or journal posting was found.", "action": "Request issuance/posting of the approved $8,400 credit."}, {"id": "A5", "title": "Supplier credit not applied at settlement", "supplier": "MA Inc.", "recovery": 4970, "confidence": "HIGH", "evidence": ["ACC-JV-2026-00002", "ACC-PINV-2026-00006", "ACC-PAY-2026-00003"], "explanation": "A $4,970 supplier credit existed before settlement, while the related $40,404 invoice was subsequently paid in full.", "action": "Reconcile the unapplied $4,970 supplier credit."}], "recovery_packages": [{"id": "A1", "supplier": "Summit Traders Ltd.", "amount": 12240, "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED", "subject": "account reconciliation: A1", "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $12,240 exception related to supplier rebate shortfall.\n\nOur supporting records are:\n- Summit-Q1-2026-Rebate-Agreement.txt\n- ACC-PINV-2026-00002\n- ACC-PINV-2026-00005\n- ACC-PINV-2026-00012\n- ACC-PINV-2026-00013\n- ACC-PINV-2026-00014\n- ACC-PINV-2026-00015\n- ACC-JV-2026-00001\n\nFinding:\nQ1 eligible spend reached the 6% rebate tier. Expected rebate was $36,720; only $24,480 was credited.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."}, {"id": "A2", "supplier": "MA Inc.", "amount": 3375, "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED", "subject": "account reconciliation: A2", "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $3,375 exception related to purchase price variance.\n\nOur supporting records are:\n- PUR-ORD-2026-00008\n- ACC-PINV-2026-00018\n\nFinding:\nApproved PO value was $40,293. Supplier invoice value was $43,668.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."}, {"id": "A3", "supplier": "Zuckerman Security Ltd.", "amount": 9750, "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED", "subject": "account reconciliation: A3", "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $9,750 exception related to duplicate economic invoice.\n\nOur supporting records are:\n- ACC-PINV-2026-00019\n- ACC-PINV-2026-00020\n\nFinding:\nTwo submitted invoices represent the same supplier, item, quantity, rate and $9,750 economic event under different references.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."}, {"id": "A4", "supplier": "Summit Traders Ltd.", "amount": 8400, "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED", "subject": "account reconciliation: A4", "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $8,400 exception related to approved credit missing from ledger.\n\nOur supporting records are:\n- Summit-Approved-Credit-8400.txt\n\nFinding:\nSupplier documentation approves an $8,400 credit, but no corresponding submitted credit or journal posting was found.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."}, {"id": "A5", "supplier": "MA Inc.", "amount": 4970, "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED", "subject": "account reconciliation: A5", "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $4,970 exception related to supplier credit not applied at settlement.\n\nOur supporting records are:\n- ACC-JV-2026-00002\n- ACC-PINV-2026-00006\n- ACC-PAY-2026-00003\n\nFinding:\nA $4,970 supplier credit existed before settlement, while the related $40,404 invoice was subsequently paid in full.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."}], "approval_gate": {"required": true, "approved": false, "external_messages_sent": 0}};
+const root=document.getElementById('findings');
+
+const details={
+ A1:{
+  calc:`$612,000 eligible Q1 purchases
+× 6% contractual rebate
+= $36,720 expected
+− $24,480 credited
+= $12,240 potential recovery`,
+  records:[
+   ['Purchase Invoices','ACC-PINV-2026-00002, 00005, 00012–00015','Eligible Q1 spend: $612,000'],
+   ['Journal Entry','ACC-JV-2026-00001','Supplier rebate credited: $24,480'],
+   ['Agreement','Summit-Q1-2026-Rebate-Agreement.txt','Applicable $500,000+ tier: 6%']
+  ]
+ },
+ A2:{
+  calc:`$43,668 invoiced
+− $40,293 approved
+= $3,375 potential recovery`,
+  records:[
+   ['Purchase Order','PUR-ORD-2026-00008','Approved value: $40,293'],
+   ['Purchase Invoice','ACC-PINV-2026-00018','Invoiced value: $43,668']
+  ]
+ },
+ A3:{
+  calc:`Invoice 1: $9,750
+Invoice 2: $9,750
+same supplier + item + quantity + rate + economic event
+= $9,750 potential duplicate`,
+  records:[
+   ['Purchase Invoice','ACC-PINV-2026-00019','$9,750'],
+   ['Purchase Invoice','ACC-PINV-2026-00020','$9,750']
+  ]
+ },
+ A4:{
+  calc:`$8,400 approved supplier credit
+− $0 corresponding ledger credit found
+= $8,400 potential recovery`,
+  records:[
+   ['Supplier Credit Approval','Summit-Approved-Credit-8400.txt','Approved: $8,400'],
+   ['Ledger Search','Submitted supplier credits / journal entries','Matching posted credit: $0']
+  ]
+ },
+ A5:{
+  calc:`$4,970 supplier credit existed
+related invoice: $40,404
+payment allocated to invoice: $40,404
+credit applied to settlement: $0
+= $4,970 unapplied credit`,
+  records:[
+   ['Journal Entry','ACC-JV-2026-00002','Supplier credit: $4,970'],
+   ['Purchase Invoice','ACC-PINV-2026-00006','Invoice: $40,404'],
+   ['Payment Entry','ACC-PAY-2026-00003','Allocated to invoice: $40,404']
+  ]
+ }
+};
+
+const ERP='https://erpnext-dbe-squ.v.frappe.cloud/app/';
+
+function erpUrl(type,id){
+ if(type==='Purchase Invoice') return ERP+'purchase-invoice/'+id;
+ if(type==='Purchase Order') return ERP+'purchase-order/'+id;
+ if(type==='Journal Entry') return ERP+'journal-entry/'+id;
+ if(type==='Payment Entry') return ERP+'payment-entry/'+id;
+ return null;
+}
+
+function openFinding(f){
+ const d=details[f.id];
+ const rows=d.records.map(r=>{
+   const url=erpUrl(r[0],r[1]);
+   return `<div class="sourceBox">
+    <div class="sourceTag">SOURCE: ERPNEXT · RETRIEVED FROM SYSTEM OF RECORD</div>
+    <b>${r[0]}</b><br>
+    ${r[1]}<br>
+    <strong>${r[2]}</strong>
+    ${url?`<br><a class="erpBtn" target="_blank" rel="noopener" href="${url}">View Source Record ↗</a>`:''}
+   </div>`;
+ }).join('');
+
+ document.getElementById('drawerContent').innerHTML=`
+  <div class="id">${f.id} · SOURCE EVIDENCE</div>
+  <h1>${f.title}</h1>
+  <div style="color:#91a6c5">${f.supplier}</div>
+  <div class="amount">$${f.recovery.toLocaleString()}</div>
+  <h3>How was this found?</h3>
+  <div class="calc">${d.calc}</div>
+  <h3>Evidence chain</h3>
+  ${rows}
+  <div class="action"><b>RECOMMENDED ACTION</b><br>${f.action}</div>
+  <div class="sourceBox"><b>CONTROL</b><br>No external action occurs without human approval.</div>`;
+
+ document.getElementById('drawer').classList.add('open');
+ document.getElementById('overlay').classList.add('open');
+}
+
+function closeDrawer(){
+ document.getElementById('drawer').classList.remove('open');
+ document.getElementById('overlay').classList.remove('open');
+}
+
+DATA.findings.forEach(f=>{
+ const c=document.createElement('div');
+ c.className='card';
+ c.onclick=()=>openFinding(f);
+ c.innerHTML=`
+  <div><span class="id">${f.id}</span> <span class="high">${f.confidence} CONFIDENCE</span></div>
+  <h2>${f.title}</h2>
+  <div style="color:#8499b8">${f.supplier}</div>
+  <div class="amount">$${f.recovery.toLocaleString()}</div>
+  <div class="explain">${f.explanation}</div>
+  <div class="evidence"><b>EVIDENCE CHAIN</b><br>${f.evidence.map(x=>'↳ '+x).join('<br>')}</div>
+  <div class="action"><b>RECOMMENDED ACTION</b><br>${f.action}</div>`;
+ root.appendChild(c);
+});
+</script>
+</body>
+</html>

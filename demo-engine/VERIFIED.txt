@@ -1,0 +1,16 @@
+REAL ERP BLIND AUDIT VERIFIED
+
+Source: ERPNext
+Mode: READ ONLY
+Ground truth used by audit: NO
+
+REBATE_SHORTFALL              $12,240
+PO_INVOICE_VARIANCE            $3,375
+POTENTIAL_DUPLICATE_INVOICE    $9,750
+APPROVED_CREDIT_NOT_POSTED     $8,400
+UNAPPLIED_SUPPLIER_CREDIT      $4,970
+                              -------
+TOTAL                         $38,735
+
+Exceptions discovered: 5/5
+External actions taken: 0

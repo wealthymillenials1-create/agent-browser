@@ -1,0 +1,66 @@
+{
+  "audit_run": "2026-09-24T20:58:28.731Z",
+  "source": "ERPNext",
+  "mode": "READ_ONLY",
+  "ground_truth_used": false,
+  "findings": [
+    {
+      "type": "REBATE_SHORTFALL",
+      "supplier": "Summit Traders Ltd.",
+      "expected": 36720,
+      "actual": 24480,
+      "recovery": 12240,
+      "evidence": [
+        "ACC-PINV-2026-00002",
+        "ACC-PINV-2026-00005",
+        "ACC-PINV-2026-00012",
+        "ACC-PINV-2026-00013",
+        "ACC-PINV-2026-00014",
+        "ACC-PINV-2026-00015",
+        "ACC-JV-2026-00001"
+      ]
+    },
+    {
+      "type": "PO_INVOICE_VARIANCE",
+      "supplier": "MA Inc.",
+      "expected": 40293,
+      "actual": 43668,
+      "recovery": 3375,
+      "evidence": [
+        "PUR-ORD-2026-00008",
+        "ACC-PINV-2026-00018"
+      ]
+    },
+    {
+      "type": "POTENTIAL_DUPLICATE_INVOICE",
+      "supplier": "Zuckerman Security Ltd.",
+      "recovery": 9750,
+      "evidence": [
+        "ACC-PINV-2026-00019",
+        "ACC-PINV-2026-00020"
+      ]
+    },
+    {
+      "type": "APPROVED_CREDIT_NOT_POSTED",
+      "supplier": "Summit Traders Ltd.",
+      "expected": 8400,
+      "actual": 0,
+      "recovery": 8400,
+      "evidence": [
+        "Summit-Approved-Credit-8400.txt"
+      ]
+    },
+    {
+      "type": "UNAPPLIED_SUPPLIER_CREDIT",
+      "supplier": "MA Inc.",
+      "recovery": 4970,
+      "evidence": [
+        "ACC-JV-2026-00002",
+        "ACC-PINV-2026-00006",
+        "ACC-PAY-2026-00003"
+      ]
+    }
+  ],
+  "exception_count": 5,
+  "potential_recovery": 38735
+}

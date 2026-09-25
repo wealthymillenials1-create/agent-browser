@@ -1,0 +1,128 @@
+{
+  "generated_at": "2026-09-24T20:33:23.501Z",
+  "audit_status": "COMPLETE",
+  "company": "Givens Vale (Demo)",
+  "potential_recovery": 38735,
+  "high_confidence_exceptions": 5,
+  "ground_truth_used": false,
+  "findings": [
+    {
+      "id": "A1",
+      "title": "Supplier rebate shortfall",
+      "supplier": "Summit Traders Ltd.",
+      "recovery": 12240,
+      "confidence": "HIGH",
+      "evidence": [
+        "Summit-Q1-2026-Rebate-Agreement.txt",
+        "ACC-PINV-2026-00002",
+        "ACC-PINV-2026-00005",
+        "ACC-PINV-2026-00012",
+        "ACC-PINV-2026-00013",
+        "ACC-PINV-2026-00014",
+        "ACC-PINV-2026-00015",
+        "ACC-JV-2026-00001"
+      ],
+      "explanation": "Q1 eligible spend reached the 6% rebate tier. Expected rebate was $36,720; only $24,480 was credited.",
+      "action": "Request the remaining $12,240 supplier rebate credit."
+    },
+    {
+      "id": "A2",
+      "title": "Purchase price variance",
+      "supplier": "MA Inc.",
+      "recovery": 3375,
+      "confidence": "HIGH",
+      "evidence": [
+        "PUR-ORD-2026-00008",
+        "ACC-PINV-2026-00018"
+      ],
+      "explanation": "Approved PO value was $40,293. Supplier invoice value was $43,668.",
+      "action": "Request correction or credit for the $3,375 variance."
+    },
+    {
+      "id": "A3",
+      "title": "Duplicate economic invoice",
+      "supplier": "Zuckerman Security Ltd.",
+      "recovery": 9750,
+      "confidence": "HIGH",
+      "evidence": [
+        "ACC-PINV-2026-00019",
+        "ACC-PINV-2026-00020"
+      ],
+      "explanation": "Two submitted invoices represent the same supplier, item, quantity, rate and $9,750 economic event under different references.",
+      "action": "Verify duplicate status and request reversal/credit of $9,750."
+    },
+    {
+      "id": "A4",
+      "title": "Approved credit missing from ledger",
+      "supplier": "Summit Traders Ltd.",
+      "recovery": 8400,
+      "confidence": "HIGH",
+      "evidence": [
+        "Summit-Approved-Credit-8400.txt"
+      ],
+      "explanation": "Supplier documentation approves an $8,400 credit, but no corresponding submitted credit or journal posting was found.",
+      "action": "Request issuance/posting of the approved $8,400 credit."
+    },
+    {
+      "id": "A5",
+      "title": "Supplier credit not applied at settlement",
+      "supplier": "MA Inc.",
+      "recovery": 4970,
+      "confidence": "HIGH",
+      "evidence": [
+        "ACC-JV-2026-00002",
+        "ACC-PINV-2026-00006",
+        "ACC-PAY-2026-00003"
+      ],
+      "explanation": "A $4,970 supplier credit existed before settlement, while the related $40,404 invoice was subsequently paid in full.",
+      "action": "Reconcile the unapplied $4,970 supplier credit."
+    }
+  ],
+  "recovery_packages": [
+    {
+      "id": "A1",
+      "supplier": "Summit Traders Ltd.",
+      "amount": 12240,
+      "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED",
+      "subject": "account reconciliation: A1",
+      "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $12,240 exception related to supplier rebate shortfall.\n\nOur supporting records are:\n- Summit-Q1-2026-Rebate-Agreement.txt\n- ACC-PINV-2026-00002\n- ACC-PINV-2026-00005\n- ACC-PINV-2026-00012\n- ACC-PINV-2026-00013\n- ACC-PINV-2026-00014\n- ACC-PINV-2026-00015\n- ACC-JV-2026-00001\n\nFinding:\nQ1 eligible spend reached the 6% rebate tier. Expected rebate was $36,720; only $24,480 was credited.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."
+    },
+    {
+      "id": "A2",
+      "supplier": "MA Inc.",
+      "amount": 3375,
+      "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED",
+      "subject": "account reconciliation: A2",
+      "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $3,375 exception related to purchase price variance.\n\nOur supporting records are:\n- PUR-ORD-2026-00008\n- ACC-PINV-2026-00018\n\nFinding:\nApproved PO value was $40,293. Supplier invoice value was $43,668.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."
+    },
+    {
+      "id": "A3",
+      "supplier": "Zuckerman Security Ltd.",
+      "amount": 9750,
+      "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED",
+      "subject": "account reconciliation: A3",
+      "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $9,750 exception related to duplicate economic invoice.\n\nOur supporting records are:\n- ACC-PINV-2026-00019\n- ACC-PINV-2026-00020\n\nFinding:\nTwo submitted invoices represent the same supplier, item, quantity, rate and $9,750 economic event under different references.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."
+    },
+    {
+      "id": "A4",
+      "supplier": "Summit Traders Ltd.",
+      "amount": 8400,
+      "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED",
+      "subject": "account reconciliation: A4",
+      "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $8,400 exception related to approved credit missing from ledger.\n\nOur supporting records are:\n- Summit-Approved-Credit-8400.txt\n\nFinding:\nSupplier documentation approves an $8,400 credit, but no corresponding submitted credit or journal posting was found.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."
+    },
+    {
+      "id": "A5",
+      "supplier": "MA Inc.",
+      "amount": 4970,
+      "status": "DRAFT \u2014 HUMAN APPROVAL REQUIRED",
+      "subject": "account reconciliation: A5",
+      "body": "Hello,\n\nDuring a reconciliation of our purchasing and supplier records, we identified a potential $4,970 exception related to supplier credit not applied at settlement.\n\nOur supporting records are:\n- ACC-JV-2026-00002\n- ACC-PINV-2026-00006\n- ACC-PAY-2026-00003\n\nFinding:\nA $4,970 supplier credit existed before settlement, while the related $40,404 invoice was subsequently paid in full.\n\nCould you review this against your records and confirm whether a credit or correction is due?\n\nThank you."
+    }
+  ],
+  "approval_gate": {
+    "required": true,
+    "approved": false,
+    "external_messages_sent": 0
+  }
+}
